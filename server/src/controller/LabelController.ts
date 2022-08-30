@@ -1,7 +1,7 @@
 import { getRepository } from "typeorm";
 import { Request } from "express";
 
-import { Component, FloorLife, Label } from "@entities";
+import { Component, Label } from "@entities";
 
 import { COMPONENT, ENTITY, ERRORS, LABEL } from "@const";
 import { AddLabel, AllLabel, DelLabel } from "@interfaces/label";
@@ -12,7 +12,6 @@ import { toFlatPropertyMap } from "@util/toFlatPropertyMap";
 export default class LabelController {
   private LabelRepository = getRepository(Label)
   private ComponentRepository = getRepository(Component)
-  private FloorlifeRepository = getRepository(FloorLife)
 
   async all(req: Request<{}, {}, {}, AllLabel>) {
     const { 
