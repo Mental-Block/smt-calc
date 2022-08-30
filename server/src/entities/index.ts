@@ -1,0 +1,6 @@
+export { default as Settings } from "./settings"
+export { default as User } from "./user"
+export { default as FloorLife } from "./floorlife"
+export { default as Component } from "./component"
+export { default as ComponentName } from "./componentName"
+export { default as Label } from "./label"

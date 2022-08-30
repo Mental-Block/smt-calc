@@ -1,0 +1,15 @@
+.env
+.env.production
+.DS_Store
+.http
+
+.http
+
+package-lock.json
+
+pgdata
+
+node_modules
+dist
+
+notused
