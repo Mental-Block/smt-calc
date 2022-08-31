@@ -10,9 +10,6 @@ class BakeComponent extends BaseEntity {
 
     @ManyToOne(() => User, (user) => user.bakeComponent, { cascade: true, onUpdate: 'CASCADE' })
     user!: User
-    
-    
-
 }
 
 export default BakeComponent
