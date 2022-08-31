@@ -22,7 +22,7 @@ const connectToDataBase = async () => {
         url: process.env.DATABASE_URL,
         entities: [join(__dirname, './entities/*{.ts,.js}')],
         migrations: [join(__dirname, 'migrations/**/*{.ts,.js}')],
-        ssl: __prod__ ? true : false,
+        ssl: __prod__ ? { rejectUnauthorized: true } : false,
         synchronize: false,
         migrationsRun: true,
         cli: {

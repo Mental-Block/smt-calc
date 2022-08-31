@@ -8,6 +8,12 @@
     "entities": [
       "./dist/src/entities/*.js"
     ],
+    "ssl": true,
+    "extra": {
+      "ssl": {
+        "rejectUnauthorized": false
+      }
+    },
     "migrations": [
       "./dist/src/entities/*.js"
     ],
