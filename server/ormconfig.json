@@ -6,15 +6,17 @@
     "password": "29a06cef13f0a034c9928389590d424e9036d6bd2cbe0c9264339125ced33247",
     "database": "d5m5lleep39obo",
     "entities": [
+      "./src/migrations/*.ts",
       "./dist/src/entities/*.js"
     ],
-    "ssl": true,
+    "ssl": false,
     "extra": {
       "ssl": {
         "rejectUnauthorized": false
       }
     },
     "migrations": [
+      "./src/migrations/*.ts",
       "./dist/src/migrations/*.js"
     ],
     "cli": {
