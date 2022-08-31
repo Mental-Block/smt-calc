@@ -74,14 +74,13 @@
       "rejectUnauthorized": false
     }
   },
-  "entities": ["./dist/src/entities/*.js"],
-  "migrations": ["./dist/src/migrations/*.js"],
+  "entities": ["dist/src/entities/*.js"],
+  "migrations": ["dist/src/migrations/*.js"],
   "cli": {
       "migrationsDir": "migration",
       "entitiesDir": "entities"
   }
 }
-
     
   {
     "type": "postgres",
@@ -90,14 +89,12 @@
     "username": "aaron",
     "password": "",
     "database": "smtcalc", 
-    "entities": [ 
-      "./dist/src/entities/*.js",
-      "./src/migrations/*.ts"
+    "entities": [
+      "src/migrations/*.ts"
     ],
    
     "migrations": [
-      "./dist/src/migrations/*.js",
-      "./src/migrations/*.ts"
+      "src/migrations/*.ts"
     ],
     "cli": {
         "migrationsDir": "migration"

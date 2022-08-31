@@ -11,10 +11,10 @@
       "rejectUnauthorized": false
     }
   },
-  "entities": ["dist/src/entities/*.js", "src/migrations/*.ts"],
-  "migrations": ["dist/src/migrations/*.js", "src/migrations/*.ts"],
+  "entities": ["dist/src/entities/*.js"],
+  "migrations": ["dist/src/migrations/*.js"],
   "cli": {
-      "migrationsDir": "migration",
-      "entitiesDir": "entities"
+      "migrationsDir": "migration"
   }
 }
+
