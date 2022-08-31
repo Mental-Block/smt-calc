@@ -31,7 +31,7 @@ const connectToDataBase = async () => {
         }
       })
       await conn.runMigrations()
-      
+
       break;
     } catch (err) {
       console.log(err);
