@@ -9,7 +9,7 @@
       "./src/migrations/*.ts",
       "./dist/src/entities/*.js"
     ],
-    "ssl": false,
+    "ssl": true,
     "extra": {
       "ssl": {
         "rejectUnauthorized": false
