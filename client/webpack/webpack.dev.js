@@ -9,8 +9,6 @@ module.exports = merge(common, {
   devServer: {
     historyApiFallback: true,
     port: 8080,
-    contentBase: '/src',
-    inline: true,
     hot: true,
     open: true,
     proxy: {
