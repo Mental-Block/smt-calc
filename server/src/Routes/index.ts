@@ -13,7 +13,7 @@ const Routes: Route[] = [
     ...ComponentRoutes,
     ...LabelRoutes,
     ...FloorlifeRoutes,
-    ...BakeRoutes
+    // ...BakeRoutes
   ]
   
 export default Routes
