@@ -1,4 +1,4 @@
-import {Entity, BaseEntity, PrimaryGeneratedColumn, ManyToOne } from "typeorm"
+import { Entity, BaseEntity, PrimaryGeneratedColumn, ManyToOne } from "typeorm"
 
 import { ENTITY } from "../const"
 import User from "./user"

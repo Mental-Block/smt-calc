@@ -3,13 +3,13 @@ import 'module-alias/register';
 
 import { createConnection } from "typeorm";
 import dotenv from "dotenv";
+import { join } from "path";
+
+import { __prod__ } from "@const";
 
 import app from "./app"
 
-
 dotenv.config();
-
-const __prod__ = process.env.NODE_ENV === "production"
 
 const connectToDataBase = async () => {
   let retries = 5;
@@ -20,9 +20,9 @@ const connectToDataBase = async () => {
      const conn = await createConnection({
         type: 'postgres',
         url: process.env.DATABASE_URL,
-        entities: [__prod__ ? __dirname + "/src/entities/**/*{.ts,.js}" : __dirname + "/entities/**/*{.ts,.js}"],
-        migrations: [__prod__ ? __dirname + "/src/migrations/**/*{.ts,.js}" : __dirname + "/migrations/**/*{.ts,.js}"  ],
-        ssl: __prod__ ? { rejectUnauthorized: true } : false,
+        entities: [join(__dirname, "./entities/*{.ts,.js}")],
+        migrations: [join(__dirname, "./migrations/*{.ts,.js}")],
+        ssl: { rejectUnauthorized: true },
         synchronize: false,
         migrationsRun: true,
         cli: {
@@ -31,6 +31,7 @@ const connectToDataBase = async () => {
         }
       })
       await conn.runMigrations()
+
       break;
     } catch (err) {
       console.log(err);
@@ -41,6 +42,6 @@ const connectToDataBase = async () => {
   }
 }
 
-connectToDataBase().then(async () => {
+connectToDataBase().then(async _ => {
   app.listen(parseInt(process.env.PORT!), () => console.log(`Server started on port: ${process.env.PORT}`));
 }).catch(error => console.error(error))

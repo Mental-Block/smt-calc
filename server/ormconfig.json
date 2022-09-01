@@ -11,8 +11,8 @@
       "rejectUnauthorized": false
     }
   },
-  "entities": ["./src/entities/*.ts", "./dist/src/entities/*.js"],
-  "migrations": ["./src/migrations/*.ts", "./dist/src/migrations/*.ts"],
+  "entities": ["src/entities/*.ts"],
+  "migrations": ["src/migrations/*.ts"],
   "cli": {
       "migrationsDir": "migration",
       "entitiesDir": "entities"
