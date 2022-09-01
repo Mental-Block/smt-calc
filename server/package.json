@@ -11,7 +11,7 @@
     "generate-migration": "npx ts-node ./node_modules/.bin/typeorm migration:generate -n run-migration -p -d src/migrations",
     "revert-migration": "npx ts-node ./node_modules/.bin/typeorm migration:revert",
     "run-migration": "npx ts-node ./node_modules/.bin/typeorm migration:run",
-    "build": "npx tsc -p ."
+    "build": "npx tsc -p . && mv ./dist/src/* ./dist && rm src"
   },
   "_moduleAliases": {
     "@entities": "dist/src/entities",
