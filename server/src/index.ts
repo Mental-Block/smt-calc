@@ -23,7 +23,7 @@ const connectToDataBase = async () => {
         migrations: [join(__dirname, '/migrations/**/*{.ts,.js}')],
         ssl: __prod__ ? true : false,
         extra: {
-          ssl: __prod__ ? { rejectUnauthorized: true } : false,
+          ssl: __prod__ ? { rejectUnauthorized: false } : false,
         },
         synchronize: false,
         migrationsRun: true,
