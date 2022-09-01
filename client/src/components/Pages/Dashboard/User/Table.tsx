@@ -194,7 +194,7 @@ const UsersTable: React.FC<TableProps<UserDataProps>> = ({
                     username: record.username,
                   }),
                 save: () => {
-                  table.save(record.id, form, save)
+                  table.action.save(record.id, form, save)
                   edit.cancelEdit()
                 },
                 cancel: () => edit.cancelEdit(),

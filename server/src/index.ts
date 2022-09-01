@@ -16,12 +16,13 @@ const connectToDataBase = async () => {
 
   while (retries) {
     try {
+      
      const conn = await createConnection({
         type: 'postgres',
         url: process.env.DATABASE_URL,
         entities: [join(__dirname, '/entities/*{.ts,.js}')],
         migrations: [join(__dirname, '/migrations/*{.ts,.js}')],
-        ssl: __prod__ ? true : false,
+        ssl: __prod__ ? { rejectUnauthorized: false } : false,
         extra: {
           ssl: __prod__ ? { rejectUnauthorized: false } : false,
         },
@@ -33,7 +34,7 @@ const connectToDataBase = async () => {
         }
       })
       await conn.runMigrations()
-      
+
       break;
     } catch (err) {
       console.log(err);
