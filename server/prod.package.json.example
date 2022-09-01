@@ -59,3 +59,19 @@
     "typeorm": "^0.2.37"
   }
 }
+
+  // orm file
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "aaron",
+  "password": "",
+  "database": "smtcalc", 
+  "entities": ["src/entities/*.ts"],
+  "migrations": ["src/migrations/*.ts"],
+  "cli": {
+      "migrationsDir": "migration",
+      "entitiesDir": "entities"
+  }
+}
