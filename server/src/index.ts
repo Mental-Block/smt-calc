@@ -1,7 +1,6 @@
 import "dotenv-safe"
 import 'module-alias/register';
 
-import { join } from "path";
 import { createConnection } from "typeorm";
 import dotenv from "dotenv";
 
@@ -20,8 +19,8 @@ const connectToDataBase = async () => {
      const conn = await createConnection({
         type: 'postgres',
         url: process.env.DATABASE_URL,
-        entities: [join(__dirname, 'entities/*{.ts,.js}')],
-        migrations: [join(__dirname, 'migrations/**/*{.ts,.js}')],
+        entities: __prod__ ? ["/dist/src/entities/*{.ts,.js}"] : ["/src/entities/*{.ts,.js}"],
+        migrations: __prod__ ? ["/dist/src/migrations/**/*{.ts,.js}"] : ["/src/migrations/**/*{.ts,.js}"],
         ssl: __prod__ ? { rejectUnauthorized: true } : false,
         synchronize: false,
         migrationsRun: true,

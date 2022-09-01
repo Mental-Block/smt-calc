@@ -61,26 +61,6 @@
 }
 
   // orm file
-  {
-  "type": "postgres",
-  "host": "ec2-54-235-98-1.compute-1.amazonaws.com",
-  "port": 5432,
-  "username": "dxejyxxysmbcvv",
-  "password": "29a06cef13f0a034c9928389590d424e9036d6bd2cbe0c9264339125ced33247",
-  "database": "d5m5lleep39obo", 
-  "ssl": true,
-  "extra": {
-    "ssl": {
-      "rejectUnauthorized": false
-    }
-  },
-  "entities": ["dist/src/entities/*.js"],
-  "migrations": ["dist/src/migrations/*.js"],
-  "cli": {
-      "migrationsDir": "migration",
-      "entitiesDir": "entities"
-  }
-}
     
   {
     "type": "postgres",

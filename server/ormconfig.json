@@ -1,4 +1,4 @@
-{
+  {
   "type": "postgres",
   "host": "ec2-54-235-98-1.compute-1.amazonaws.com",
   "port": 5432,
@@ -11,10 +11,10 @@
       "rejectUnauthorized": false
     }
   },
-  "entities": ["dist/src/entities/*.js"],
-  "migrations": ["dist/src/migrations/*.js"],
+  "entities": ["src/entities/*.ts"],
+  "migrations": ["src/migrations/*.ts"],
   "cli": {
-      "migrationsDir": "migration"
+      "migrationsDir": "migration",
+      "entitiesDir": "entities"
   }
 }
-
