@@ -19,8 +19,8 @@ const connectToDataBase = async () => {
      const conn = await createConnection({
         type: 'postgres',
         url: process.env.DATABASE_URL,
-        entities: ["/dist/src/entities/*{.ts,.js}"],
-        migrations: ["/dist/src/migrations/**/*{.ts,.js}"],
+        entities: ["dist/src/entities/*{.ts,.js}"] ,
+        migrations: ["dist/src/migrations/**/*{.ts,.js}"],
         ssl: __prod__ ? { rejectUnauthorized: true } : false,
         synchronize: false,
         migrationsRun: true,
@@ -30,6 +30,9 @@ const connectToDataBase = async () => {
         }
       })
       await conn.runMigrations()
+
+      // __prod__ ? : "src/entities/*{.ts,.js}"
+      // __prod__ ?  : "src/migrations/**/*{.ts,.js}"
 
       break;
     } catch (err) {
