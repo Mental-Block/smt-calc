@@ -3,14 +3,13 @@ import 'module-alias/register';
 
 import { createConnection } from "typeorm";
 import dotenv from "dotenv";
-import { join } from "path";
-
-import { __prod__ } from "@const";
 
 import app from "./app"
 
 
 dotenv.config();
+
+const __prod__ = process.env.NODE_ENV === "production"
 
 const connectToDataBase = async () => {
   let retries = 5;
