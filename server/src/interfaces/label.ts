@@ -14,8 +14,8 @@ export interface LabelProps {
 
 export type LabelWRelations = LabelProps & { component: ComponentProps, msl: FloorLifeProps }
 
-type Label = DeepFlatten<LabelWRelations, '_'>
 
+export type Label = DeepFlatten<LabelWRelations, '_'>
 export type AllLabel = Partial<TableProps & Pick<Label, 'partId' | 'component_partnumberInternal' | 'component_partnumberManufactor'>>  
 export type DelLabel = Pick<Label, 'id'>
 export type AddLabel = Pick<Label, 'partId'> & Pick<ComponentProps, 'partnumberInternal' | 'partnumberManufactor'>

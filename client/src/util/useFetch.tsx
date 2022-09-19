@@ -29,6 +29,26 @@ export const throttleFunc = (func: () => void, interval: number) => {
   }
 }
 
+export async function fetchJson<T>(
+  url: RequestInfo,
+  options?: RequestInit
+): Promise<T> {
+  return await fetch(url, options)
+    .then(async (res) => {
+      const data = await res.json()
+
+      if (!res.ok) {
+        if (data.message) throw data.message
+        if (data.errors[0].msg) throw data.errors[0].msg
+      }
+
+      return data
+    })
+    .catch((err) => {
+      throw err
+    })
+}
+
 function useFetch<T>(
   url: RequestInfo,
   options?: RequestInit,

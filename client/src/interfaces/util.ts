@@ -7,12 +7,12 @@ type _Explode<T, O extends string> = T extends object
   ? {
       [K in keyof T]-?: K extends string
         ? Explode<T[K]> extends infer E
-          ? E extends { key: string; value: string, optional: string }
+          ? E extends { optional: boolean; value: any; key: any }
             ? {
-                key: `${K}${E['key'] extends typeof String ? O : ''} ${E['key']}`
+                key: `${K}${E['key'] extends '' ? '' : O}${E['key']}`
                 value: E extends any[] ? E['value'][] : E['value']
                 optional: E['key'] extends ''
-                  ? {} extends Pick<T, K>
+                  ? object extends Pick<T, K>
                     ? true
                     : false
                   : E['optional']
@@ -28,12 +28,19 @@ type Explode<T, O extends string = '.'> = _Explode<
   O
 >
 
-
 type Collapse<T> = {
-  [E in Extract<T, { optional: false, key: string, value: string }> as E['key']]: E['value']
+  [E in Extract<
+    T,
+    { optional: false; value: any; key: any }
+  > as E['key']]: E['value']
 } &
   Partial<
-    { [E in Extract<T, { optional: true, key: string, value: string  }> as E['key']]: E['value'] }
+    {
+      [E in Extract<
+        T,
+        { optional: true; value: any; key: any }
+      > as E['key']]: E['value']
+    }
   > extends infer O
   ? { [K in keyof O]: O[K] }
   : never

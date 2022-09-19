@@ -3,7 +3,6 @@ import LabelController from "@controller/LabelController";
 import { Route } from "@interfaces/route";
 
 import { id, isAuth } from "@middleware/validation";
-import { partId } from "@middleware/validation/label";
 import { partNumberInternal, partNumberManufactor } from "@middleware/validation/component";
 import { page, pageSize, sortFeild, sortOrder } from "@middleware/validation/table";
 
@@ -23,7 +22,7 @@ const LabelRoutes: Route[] = [
           sortOrder,
           partNumberInternal(`${ENTITY.component}_${COMPONENT.partnumberInternal}`, 'query'),
           partNumberManufactor(`${ENTITY.component}_${COMPONENT.partnumberManufactor}`, 'query'),
-          partId(`${LABEL.partId}`, 'query'),
+          id(`${LABEL.partId}`, 'query'),
         ],
       }, 
       {
@@ -43,7 +42,7 @@ const LabelRoutes: Route[] = [
         action: "add",
         validation: [
           isAuth,
-          partId(`${LABEL.partId}`, 'body'),
+          id(`${LABEL.partId}`, 'body'),
           partNumberInternal(`${COMPONENT.partnumberInternal}`, 'body'),
           partNumberManufactor(`${COMPONENT.partnumberManufactor}`, 'body'),
         ],

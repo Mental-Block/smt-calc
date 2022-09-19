@@ -82,8 +82,8 @@ export default class UserController {
          secure: __prod__ ? true : false,
          domain: __prod__ ? DOMAIN : undefined
     })
-    
-    return { ok: false, accessToken: null }
+
+    return true
   }
   
   async all (req: AllRequest){

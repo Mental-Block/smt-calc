@@ -2,16 +2,17 @@ import { Layout } from 'antd'
 import { Content } from 'antd/lib/layout/layout'
 import React from 'react'
 
-import Spin from '@components/shared/Spin'
-import AuthContext from '@context/AuthContext'
+import DefaultLoadingPage from '@components/shared/DefualtLoadingPage'
 
 import { PrivateFooter, PublicFooter } from './Footer'
 import { PublicHeader, PrivateHeader } from './Header'
 import { PrivateAside } from './Aside'
 import Routes from './Routes'
 
+import useAuthContext from '@context/AuthContext'
+
 const Layouts: React.FC = (): JSX.Element => {
-  const { auth } = React.useContext(AuthContext)
+  const { auth } = useAuthContext()
 
   return (
     <React.Fragment>
@@ -22,7 +23,11 @@ const Layouts: React.FC = (): JSX.Element => {
           <Public />
         ) : (
           <div className="app-loading">
-            <Spin spinning={auth.ok === null} tip="Loading App..." />
+            <DefaultLoadingPage
+              isLoading={auth.ok === null}
+              loadingMessage="Loading App..."
+              error={auth.ok === null ? undefined : '500, Server Error'}
+            />
           </div>
         )}
       </Layout>

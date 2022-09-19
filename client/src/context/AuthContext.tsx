@@ -1,55 +1,55 @@
 import React from 'react'
 
-import { AccessToken, AuthContextProps, AuthProps } from '@interfaces/auth'
+import type { AccessToken, AuthContextProps, AuthProps } from '@interfaces/auth'
+import { TIME } from '@const'
 import getToken from '@util/getToken'
-import { API, TIME } from '@const'
 
-// eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-const AuthContext = React.createContext<AuthContextProps>(undefined!)
+import { usePublicApi } from '@API'
+
+const AuthContext = React.createContext<AuthContextProps | undefined>(undefined)
 
 const AuthContextProvider: React.FC = (props): JSX.Element => {
-  const [auth, setAuth] = React.useState<AuthProps>({
+  const API = usePublicApi()
+  const [auth, setAuthentication] = React.useState<AuthProps>({
     ok: null,
   })
 
-  const requestAuthToken = React.useCallback(async () => {
-    const res = await fetch(`${API.USER}/refreshtoken`, {
-      method: 'POST',
-      credentials: 'include',
-    })
+  const setAuth = (data: AuthProps) => {
+    setAuthentication(data)
+  }
 
-    if (res.ok) {
-      const data: AuthProps = await res.json()
-      setAuth({ ...data, role: getToken(data.accessToken)?.role })
-      return data.accessToken
-    } else {
-      setAuth({ ok: false })
+  React.useEffect(() => {
+    const requestAuthToken = async () => {
+      return await API<AuthProps>('userRefreshToken')
+        .then((data) => {
+          setAuth({ ...data, role: getToken(data.accessToken)?.role })
+          return data.accessToken
+        })
+        .catch(() => {
+          setAuth({ ok: false, accessToken: undefined, role: undefined })
+        })
     }
-  }, [])
 
-  const requestTimer = React.useCallback(
-    (token: AccessToken) => {
+    const requestTimer = (token: AccessToken) => {
       const TOKEN = getToken(token)
 
       const TOKEN_REQUEST_TIMER = TOKEN?.exp
-        ? TOKEN?.exp * 1000 - Date.now()
+        ? TOKEN?.exp * TIME.ONE_SECOND - Date.now()
         : TIME.ONE_MINUTE * 10
 
       const requestTimer = setInterval(requestAuthToken, TOKEN_REQUEST_TIMER)
 
       return () => clearInterval(requestTimer)
-    },
-    [requestAuthToken]
-  )
+    }
 
-  React.useEffect(() => {
     const sendRequest = async () => {
       const initalToken = await requestAuthToken()
-      requestTimer(initalToken)
+      if (initalToken) requestTimer(initalToken)
     }
 
     sendRequest()
-  }, [requestTimer, requestAuthToken])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <React.Fragment>
@@ -60,5 +60,11 @@ const AuthContextProvider: React.FC = (props): JSX.Element => {
   )
 }
 
-export default AuthContext
+const useAuthContext = () => {
+  const context = React.useContext(AuthContext)
+  if (!context) throw 'Not inside the provider'
+  return context
+}
+
+export default useAuthContext
 export { AuthContextProvider }

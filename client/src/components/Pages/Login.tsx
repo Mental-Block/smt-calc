@@ -12,20 +12,19 @@ const LoginPage: React.FC = (): JSX.Element => {
   const { login } = useAuth()
   const [form] = Form.useForm()
   const generateId = useGenerateId()
-  const onFinish = async (values: LoginProps) => {
-    const ok = await login(values)
 
-    if (!ok) {
+  const onFinish = async (values: LoginProps) => {
+    await login(values).catch((err) => {
       Object.keys(values).map((name) => {
         form.setFields([
           {
             name,
             value: form.getFieldValue(name),
-            errors: [`Incorrect username or password!`],
+            errors: [err],
           },
         ])
       })
-    }
+    })
   }
 
   const formItems: FormItemProps<LoginProps>[] = [

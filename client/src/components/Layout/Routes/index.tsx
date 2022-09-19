@@ -4,7 +4,7 @@ import { Route, useRouteMatch } from 'react-router-dom'
 import { PATH } from '@const'
 import Spin from '@components/shared/Spin'
 
-import RenderRoutes from './Routes'
+import RenderRoutes, { LocateRoute } from './Routes'
 import { FourOhFourSwitch } from './Switch'
 
 const FOUR_OH_FOUR = React.lazy(() => import('@components/Pages/FourOhFour'))
@@ -17,6 +17,7 @@ const Routes: React.FC = (): JSX.Element => {
       <React.Suspense fallback={<Spin tip="Loading Page..." />}>
         <React.Fragment>
           <Route path={`${PATH.FOUROHFOUR}`} component={FOUR_OH_FOUR} />
+          <LocateRoute />
           <FourOhFourSwitch>
             {!hasMatchedNotFound && <RenderRoutes />}
           </FourOhFourSwitch>

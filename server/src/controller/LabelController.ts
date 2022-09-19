@@ -32,7 +32,7 @@ export default class LabelController {
     ])
 
    const createdPage = Table.createPage(page, pageSize)
-    const createdSort = Table.createSort(
+  const createdSort = Table.createSort(
       fixedSortFeild, 
       sortOrder,
     )
@@ -46,7 +46,7 @@ export default class LabelController {
       `${ENTITY.component}.${COMPONENT.partnumberManufactor}`
     ])
     .andWhere(partId ? `${ENTITY.label}.${LABEL.partId} ::TEXT ILIKE :${LABEL.partId} ::TEXT` 
-: `TRUE`, {partId : `%${partId}%` })
+    : `TRUE`, {partId : `%${partId}%` })
     .andWhere(component_partnumberInternal ?  `${ENTITY.component}.${COMPONENT.partnumberInternal} ILIKE :${COMPONENT.partnumberInternal}` 
     : `TRUE`, { partnumberInternal: `%${component_partnumberInternal}%` })
     .andWhere(component_partnumberManufactor ?  `${ENTITY.component}.${COMPONENT.partnumberManufactor} ILIKE :${COMPONENT.partnumberManufactor}` 

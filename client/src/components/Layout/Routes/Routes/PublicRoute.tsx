@@ -1,11 +1,11 @@
 import React from 'react'
-import { RouteProps } from '@interfaces/layout'
+import type { RouteProps } from '@interfaces/layout'
+import useAuthContext from '@context/AuthContext'
 
 import RouteWithSubRoutes from './RoutesWithSubRoutes'
-import AuthContext from '@context/AuthContext'
 
 const PublicRoute: React.FC<RouteProps> = (route): JSX.Element => {
-  const { auth } = React.useContext(AuthContext)
+  const { auth } = useAuthContext()
 
   return (
     <React.Fragment>

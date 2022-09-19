@@ -4,9 +4,9 @@ import React from 'react'
 import { DropDownProps } from '@interfaces/dropdown'
 
 const DropDown: React.FC<DropDownProps> = ({
+  inputProps,
   add,
   del,
-  inputProps,
   children,
 }) => {
   return (

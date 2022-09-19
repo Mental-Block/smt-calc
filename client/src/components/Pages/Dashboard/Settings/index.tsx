@@ -1,16 +1,17 @@
 import React from 'react'
 
 import { API } from '@const'
-import AuthContext from '@context/AuthContext'
 import Spin from '@components/shared/Spin'
 import Error from '@components/shared/Error'
 import useFetch from '@util/useFetch'
 
 import SettingsForm from './Form'
 import { SettingsDataProps } from '@interfaces/settings'
+import useAuthContext from '@context/AuthContext'
+import DefaultLoadingPage from '@components/shared/DefualtLoadingPage'
 
 const Settings: React.FC = (): JSX.Element => {
-  const { auth } = React.useContext(AuthContext)
+  const { auth } = useAuthContext()
 
   const { isLoading, error, data } = useFetch<SettingsDataProps>(
     `${API.SETTINGS}`,
@@ -26,19 +27,17 @@ const Settings: React.FC = (): JSX.Element => {
   )
 
   return (
-    <React.Fragment>
-      <div className="page-center">
-        {isLoading ? (
-          <Spin tip="Loading Settings..." />
-        ) : data ? (
+    <DefaultLoadingPage
+      error={error}
+      isLoading={isLoading}
+      loadingMessage="Loading Settings..."
+    >
+      {data && (
+        <div className="page-center">
           <SettingsForm {...data} />
-        ) : (
-          <div className="page-center">
-            <Error error={error} />
-          </div>
-        )}
-      </div>
-    </React.Fragment>
+        </div>
+      )}
+    </DefaultLoadingPage>
   )
 }
 

@@ -1,4 +1,5 @@
-import { Menu, MenuProps } from 'antd'
+import React from 'react'
+import { Menu } from 'antd'
 import Sider from 'antd/lib/layout/Sider'
 import {
   BoxPlotFilled,
@@ -8,78 +9,59 @@ import {
   SettingOutlined,
   UserOutlined,
 } from '@ant-design/icons'
-import React from 'react'
-import { useHistory, useLocation } from 'react-router-dom'
 
-import { ROLE } from '@const'
-import AuthContext from '@context/AuthContext'
 import { DASHBOARD_ROUTES } from '@components/Layout/Routes/Paths'
 
 import mergeArrayObjects from '@util/mergeArrayObjects'
-import { RouteProps } from '@interfaces/layout'
+// import addKeyArrayObjects from
 
-type ItemType = Required<MenuProps>['items'][number]
+import useGenerateId from '@util/useGenerateId'
 
-const useRouteKey = () => {
-  const [key, setKey] = React.useState('')
-  const { pathname } = useLocation()
+import type { ItemType, MenuItem } from '@interfaces/menu'
+import addKeyArrayObjects from '@util/addKeyArrayObjects'
 
-  React.useEffect(() => {
-    if (pathname.endsWith('/')) {
-      const newKey = pathname.slice(0, pathname.length - 1)
-      setKey(newKey)
-    } else {
-      setKey(pathname)
-    }
-  }, [pathname])
-
-  return key
-}
+import useMenu from '@util/useMenu'
+import useRouteKey from '@util/useRoutes'
 
 export const PrivateAside: React.FC = (): JSX.Element => {
-  const { auth } = React.useContext(AuthContext)
   const [collapsed, setCollapsed] = React.useState(false)
-  const history = useHistory()
-  const activeKey = useRouteKey()
+  const [key, setKey] = useRouteKey()
+  const generateId = useGenerateId()
+  const { routeIntoMenuItem, pathIntoMenuKey } = useMenu()
 
-  const disabled = auth.role === ROLE.admin ? false : true
-
-  // NEED TO KEEP ID IN ORDER, or CAN'T MERGE W ROUTES
-  const MENU_ITEMS: ItemType[] = [
+  const MENU_ITEMS: MenuItem[] = [
     {
-      key: '0',
+      key: generateId('0'),
       label: 'Home',
       icon: <HomeOutlined />,
     },
     {
-      key: '1',
+      key: generateId('1'),
       label: 'Users',
       icon: <UserOutlined />,
-      disabled,
     },
     {
-      key: '2',
+      key: generateId('2'),
       label: 'Components',
       icon: <BoxPlotFilled />,
-      disabled,
     },
     {
-      key: '3',
+      key: generateId('3'),
       label: 'Labels',
       icon: <QrcodeOutlined />,
     },
     {
-      key: '4',
+      key: generateId('4'),
       label: "MSL's",
       icon: <ClockCircleOutlined />,
       children: [
         {
-          key: '0',
+          key: generateId('5'),
           label: 'Floor Life - Dry Cab',
         },
         {
+          key: generateId('6'),
           disabled: true,
-          key: '1',
           label: 'Bake Components',
         },
         // {
@@ -89,66 +71,19 @@ export const PrivateAside: React.FC = (): JSX.Element => {
       ],
     },
     {
-      key: '5',
+      key: generateId('7'),
       label: 'Settings',
       icon: <SettingOutlined />,
-      disabled,
     },
   ]
 
-  const routeIntoItemWPath = (routes: RouteProps[]): any[] => {
-    return routes.map(
-      ({ path, routes, restricted }: RouteProps, key: number) => {
-        const routeObj = {
-          key: key.toString() as string,
-          path: path as string,
-          disabled: restricted,
-        }
-
-        if (routes) {
-          return {
-            ...routeObj,
-            children: routeIntoItemWPath(routes),
-          }
-        }
-
-        return routeObj
-      }
-    )
-  }
-
-  const convertRoutePathIntoKey = (menuItems: any[]): any[] => {
-    return menuItems.map(({ path, ...props }: any) => {
-      const routeObj = {
-        ...props,
-        key: path,
-      }
-
-      if (props.children) {
-        return {
-          ...routeObj,
-          children: convertRoutePathIntoKey(props.children as any[]),
-        }
-      }
-
-      return routeObj
-    })
-  }
-
-  /* convert route into menu items with path */
-  const routeItems = routeIntoItemWPath(DASHBOARD_ROUTES)
-
-  /* merge items array with routes array off the key we just added */
-  const menuItemWPath = mergeArrayObjects(
-    routeItems,
-    MENU_ITEMS as any[],
-    'key'
+  const routeMenuItems = routeIntoMenuItem(DASHBOARD_ROUTES)
+  const mergedMenuItems = mergeArrayObjects(
+    routeMenuItems,
+    addKeyArrayObjects(MENU_ITEMS)
   )
 
-  /* since we just mutated our array... We now want to convert the path into key 
-  so we have a ItemType[] again. This also ensures we have a unique key/path 
-  for react router */
-  const menuItems = convertRoutePathIntoKey(menuItemWPath)
+  const DASHBOARD_MENU_ITEMS: ItemType[] = pathIntoMenuKey(mergedMenuItems)
 
   return (
     <Sider
@@ -159,13 +94,13 @@ export const PrivateAside: React.FC = (): JSX.Element => {
       onCollapse={() => setCollapsed(!collapsed)}
     >
       <Menu
-        onSelect={({ key }) => {
-          history.push(key)
+        onClick={({ key }) => {
+          setKey(key)
         }}
-        items={menuItems}
+        items={DASHBOARD_MENU_ITEMS}
         mode="inline"
-        activeKey={activeKey}
-        selectedKeys={[activeKey]}
+        activeKey={key}
+        selectedKeys={[key]}
       />
     </Sider>
   )

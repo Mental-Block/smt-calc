@@ -1,46 +1,40 @@
 import React from 'react'
-import { Button, Form, FormItemProps, Input, InputRef, Select } from 'antd'
+import { Button, Form, FormItemProps, Input, Select } from 'antd'
 import { PlusOutlined } from '@ant-design/icons'
 
-import { API, REGEX } from '@const'
-import AuthContext from '@context/AuthContext'
+import { REGEX } from '@const'
 import { FormModal } from '@components/shared/Table'
 
+import { usePrivateApi } from '@API'
 import useModal from '@util/useModal'
-
 import { isWholeNumber } from '@util/formRules'
 import useFocus from '@util/useFocus'
 import useBarcodeScanner from '@util/useBarcodeScanner'
 
-import { ComponentProps } from '@interfaces/component'
-import { LabelProps } from '@interfaces/label'
+import type { ComponentProps } from '@interfaces/component'
+import type { LabelProps } from '@interfaces/label'
 
 interface TableHeaderProps {
   add: (values: any) => void
 }
 
-type Component = Pick<ComponentProps, 'partnumberManufactor'>
-type ComponentInternal = Pick<
-  ComponentProps,
-  'partnumberInternal'
->['partnumberInternal']
-type ComponentManufactor = Pick<
-  ComponentProps,
-  'partnumberManufactor'
->['partnumberManufactor']
+type ManufactorPartnumber = Pick<ComponentProps, 'partnumberManufactor'>
 
 const TableHeader: React.FC<TableHeaderProps> = ({ add }) => {
   const [form] = Form.useForm()
-
-  const { auth } = React.useContext(AuthContext)
+  const API = usePrivateApi()
   const { visible, close, open } = useModal()
-
-  const inputRef = React.useRef<InputRef>(null)
+  const [inputRef, setFocus] = useFocus()
   const [inputRef1, setFocus1] = useFocus()
   const barcode = useBarcodeScanner()
 
   const [hideInput, setHideInput] = React.useState(true)
-  const [options, setOptions] = React.useState<Component[]>([])
+  const [options, setOptions] = React.useState<ManufactorPartnumber[]>([])
+
+  React.useEffect(() => {
+    if (inputRef) setFocus()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [visible, inputRef])
 
   React.useEffect(() => {
     if (barcode) {
@@ -48,44 +42,29 @@ const TableHeader: React.FC<TableHeaderProps> = ({ add }) => {
     }
   }, [barcode, open])
 
-  React.useEffect(() => {
-    if (inputRef) {
-      inputRef.current?.focus()
-    }
-  }, [visible])
-
-  const getManufactorPartData = async (
-    partnumberManufactor: ComponentManufactor | null,
-    partnumber_internal: ComponentInternal
+  const isOnlyInternalPartNumber = async (
+    partnumberManufactor: string | undefined,
+    partnumber_internal: string
   ) => {
-    const res = await fetch(`${API.COMPONENT}/${partnumber_internal}`, {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-        authorization: `bearer ${auth.accessToken}`,
-      },
-      credentials: 'include',
-      method: 'POST',
+    await API<ManufactorPartnumber[]>(
+      'internalPartNumConflict',
+      partnumber_internal
+    ).then((data) => {
+      if (!data)
+        return Promise.reject(`Theres no component with this part number`)
+
+      if (data.length > 1 && !partnumberManufactor) {
+        setHideInput(false)
+        setOptions(data)
+        return Promise.reject('Theres a part number conflict. Please specify.')
+      }
+
+      form.setFieldsValue({
+        partnumberManufactor: data[0].partnumberManufactor,
+      })
+      setHideInput(true)
+      return Promise.resolve(true)
     })
-
-    if (!res.ok) return Promise.reject(`Server Error, 500`)
-
-    const data = (await res.json()) as Component[]
-
-    if (!data)
-      return Promise.reject(`Theres no component with this part number`)
-
-    if (data.length > 1 && !partnumberManufactor) {
-      setHideInput(false)
-      setOptions(data)
-      return Promise.reject('Theres a part number conflict. Please specify.')
-    }
-
-    form.setFieldsValue({
-      partnumberManufactor: data[0].partnumberManufactor,
-    })
-    setHideInput(true)
-    return Promise.resolve(true)
   }
 
   const LABEL_ITEMS: FormItemProps<LabelProps>[] = [
@@ -127,7 +106,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({ add }) => {
         },
         ({ getFieldValue }: any) => ({
           validator: async (_: any, value: string) => {
-            await getManufactorPartData(
+            await isOnlyInternalPartNumber(
               getFieldValue('partnumberManufactor'),
               value
             )

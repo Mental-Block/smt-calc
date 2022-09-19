@@ -1,33 +1,25 @@
-import { RouteProps } from '@interfaces/layout'
-import { MenuProps } from 'antd'
 import React from 'react'
+import { useHistory, useLocation } from 'react-router-dom'
 
-type ItemType = Required<MenuProps>['items'][number]
+const useRouteKey = () => {
+  const [key, setK] = React.useState('')
+  const history = useHistory()
+  const { pathname } = useLocation()
 
-const useConvertRoutesIntoMenuItems = (
-  intitalRoutes: RouteProps[],
-  initalMenuItems: ItemType[]
-) => {
-  const [routes, setRoutes] = React.useState(intitalRoutes)
-  const [menuItems, setMenuItems] = React.useState(initalMenuItems)
+  React.useEffect(() => {
+    if (pathname.endsWith('/')) {
+      const newKey = pathname.slice(0, pathname.length - 1)
+      setK(newKey)
+    } else {
+      setK(pathname)
+    }
+  }, [pathname])
 
-  return {
-    convertRouteIntoMenuItemsWPath,
-    convertRoutePathIntoKey,
-    removeRoutes,
-    routes,
+  const setKey = (path: string) => {
+    history.push(path as string)
   }
+
+  return [key, setKey] as const
 }
 
-export default useRoutes
-
-/* convert route into menu items with path */
-const routeItems = bob.convertRouteIntoMenuItemsWPath(DASHBOARD_ROUTES)
-
-/* merge items array with routes array off the key we just added */
-const menuItemWPath = mergeArrayObjects(routeItems, MENU_ITEMS as any[], 'key')
-
-/* since we just mutated our array... We now want to convert the path into key 
- so we have a ItemType[] again. This also ensures we have a unique key/path 
- for react router */
-const menuItems = bob.convertRoutePathIntoKey(menuItemWPath)
+export default useRouteKey

@@ -11,5 +11,5 @@ export interface FormModalProps {
 export type OptionType = {
   text: string
   value: string
-  id?: string | number
+  id: number
 }

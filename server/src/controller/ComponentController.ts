@@ -109,14 +109,14 @@ export default class ComponentController {
 
   async save(req: Request<{ id: number }, {}, SaveComponent>) {
     const { id } = req.params
-    const componentProps = req.body
+    const componentReq = req.body
     
     const component = await this.ComponentRepository.findOne({ where: { id } })
 
-    if(!component) throw new Error(ERRORS.componentNotFound)
+    if(!component) throw new Error("No component found!")
 
     this.ComponentRepository.merge(component, {
-      ...componentProps,
+      ...componentReq,
     });
 
     await this.ComponentRepository.save(component);

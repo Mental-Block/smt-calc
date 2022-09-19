@@ -1,79 +1,65 @@
 import React from 'react'
-import { Button, FormItemProps, Input, InputNumber, Select } from 'antd'
+import {
+  Button,
+  FormItemProps,
+  Input,
+  InputNumber,
+  message,
+  Select,
+} from 'antd'
 import { PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
-import { REGEX, MSL_LEVEL_OPTIONS, API, PACKAGE_TYPE_OPTIONS } from '@const'
+import { REGEX, MSL_LEVEL_OPTIONS, PACKAGE_TYPE_OPTIONS } from '@const'
 
-import AuthContext from '@context/AuthContext'
 import { DropDown } from '@components/shared/Form'
 import { FormModal } from '@components/shared/Table'
 
 import useModal from '@util/useModal'
 import { isWholeNumber } from '@util/formRules'
-import useSearchDropDown, { useDropDownInput } from '@util/useSearchDropDown'
-import useComponentType from '@util/useComponentType'
+import { useDropDown } from '@util/useDropDown'
 
-import { FetchError } from '@interfaces/fetch'
-import { OptionType } from '@interfaces/form'
-import { ComponentProps } from '@interfaces/component'
+import type { OptionType } from '@interfaces/form'
+import type { ComponentProps } from '@interfaces/component'
+
+import { usePrivateApi } from '@API'
+import useAsyncComponentName from '@util/useAsyncComponentName'
 
 interface TableHeaderProps {
-  add: (values: Partial<ComponentProps>) => void
+  add: (values: Omit<ComponentProps, 'id'>) => void
 }
 
 const TableHeader: React.FC<TableHeaderProps> = ({ add }) => {
-  const { auth } = React.useContext(AuthContext)
   const { visible, close, open } = useModal()
+  const [value, setSearch] = React.useState<string>('')
+  const API = usePrivateApi()
 
-  const component = useComponentType()
-  const search = useSearchDropDown(component.componentTypeCB, component.options)
-  const dropdown = useDropDownInput(component.options)
+  const { options } = useAsyncComponentName(value)
+  const dropdown = useDropDown(options)
 
-  const options = !search.value.trim() ? dropdown.options : search.options
-
-  const addComponentName = React.useCallback(
-    async (value: string): Promise<OptionType> => {
-      const res = await fetch(`${API.COMPONENT_NAME}/add`, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          authorization: `bearer ${auth.accessToken}`,
-        },
-        credentials: 'include',
-        method: 'POST',
-        body: JSON.stringify({ name: value }),
-      })
-
-      if (!res.ok) {
-        const { message } = (await res.json()) as FetchError
-        throw new Error(message || `${res.status} ${res.statusText}`)
-      }
-
-      const option = (await res.json()) as OptionType
-
-      return option
+  const addName = React.useCallback(
+    async (value: string): Promise<void> => {
+      await API<OptionType>('componentNameAdd', value)
+        .then(dropdown.add)
+        .catch((error: string) => {
+          message.error({ content: error })
+        })
     },
-    [auth.accessToken]
+    [API, dropdown]
   )
 
-  const delComponentName = React.useCallback(
-    async (id: number) => {
-      const res = await fetch(`${API.COMPONENT_NAME}/${id}`, {
-        headers: {
-          Accept: 'application/json',
-          'Content-Type': 'application/json',
-          authorization: `bearer ${auth.accessToken}`,
-        },
-        credentials: 'include',
-        method: 'DELETE',
-      })
-
-      if (!res.ok) {
-        const { message } = (await res.json()) as FetchError
-        throw new Error(message || `${res.status} ${res.statusText}`)
-      }
+  const delName = React.useCallback(
+    async (value: string) => {
+      await dropdown
+        .getOption(value)
+        .then(({ id }) => {
+          API('componentNameDel', id)
+          dropdown.del(id)
+        })
+        .catch((error: string) => {
+          message.error({ content: error })
+        })
     },
-    [auth.accessToken]
+    [dropdown, API]
   )
 
   const COMPONENT_ITEMS: FormItemProps<ComponentProps>[] = React.useMemo(
@@ -127,29 +113,29 @@ const TableHeader: React.FC<TableHeaderProps> = ({ add }) => {
         children: (
           <Select
             showSearch
-            value={search.value}
+            onSearch={setSearch}
+            value={value}
             placeholder="select a package"
             defaultActiveFirstOption={false}
             showArrow={true}
             filterOption={false}
-            onSearch={search.onSearch}
             listHeight={180}
             dropdownRender={(menu) => (
               <DropDown
-                add={() => dropdown.add(addComponentName)}
-                del={() => dropdown.del(delComponentName)}
                 inputProps={{
-                  placeholder: 'component type',
                   style: { width: '268px' },
+                  placeholder: 'BGA (Ball Grid Array)',
                   value: dropdown.value,
                   onChange: dropdown.onChange,
                 }}
+                add={() => addName(dropdown.value)}
+                del={() => delName(dropdown.value)}
               >
                 {menu}
               </DropDown>
             )}
           >
-            {options.map(({ id, value, text }) => (
+            {dropdown.options.map(({ id, value, text }) => (
               <Select.Option key={id} value={value}>
                 {text}
               </Select.Option>
@@ -242,14 +228,7 @@ const TableHeader: React.FC<TableHeaderProps> = ({ add }) => {
         ),
       },
     ],
-    [
-      search.value,
-      search.onSearch,
-      dropdown,
-      addComponentName,
-      delComponentName,
-      options,
-    ]
+    [value, setSearch, dropdown, addName, delName]
   )
 
   return (

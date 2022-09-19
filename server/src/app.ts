@@ -11,7 +11,7 @@ import { validationResult } from "express-validator"
 import Routes from "./Routes";
 
   const handleError = (err: any, _req: Request, res: Response, _next: NextFunction) => {
-    return res.status(err.statusCode || 500).send(err.message)
+    return res.status(err.statusCode || 500).send({ message: err.message })
   }
 
   const app = express()
@@ -37,7 +37,7 @@ import Routes from "./Routes";
                 return res.status(400).json({ errors: errors.array() });
               }
         
-              const result = await (new (route.controller as any))[route.action](req, res, next);
+              const result = await (new route.controller)[route.action](req, res, next);
               return res.json(result);
             } catch(err) {
               next(err);

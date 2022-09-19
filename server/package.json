@@ -13,16 +13,6 @@
     "run-migration": "npx ts-node ./node_modules/.bin/typeorm migration:run",
     "build": "npx tsc -p ."
   },
-  "_moduleAliases": {
-    "@entities": "dist/src/entities",
-    "@interfaces": "dist/src/interfaces",
-    "@controller": "dist/src/controller",
-    "@middleware":"dist/src/middleware",
-    "@migrations": "dist/src/migrations",
-    "@routes": "dist/src/routes",
-    "@util": "dist/src/util",
-    "@const": "dist/src/const"
-  },
   "author": "",
   "license": "ISC",
   "devDependencies": {

@@ -3,7 +3,7 @@ import { useForm } from 'antd/lib/form/Form'
 import React from 'react'
 
 export default function useEdit<T extends { id: React.Key }>(
-  formInstance: FormInstance<T>
+  formInstance?: FormInstance<T>
 ) {
   const [form] = useForm(formInstance)
   const [editingKey, setEditingKey] = React.useState<React.Key>('')
@@ -19,14 +19,21 @@ export default function useEdit<T extends { id: React.Key }>(
     setEditingKey(record.id)
   }
 
-  const cancelEdit = (): void => {
+  const cancel = (): void => {
     setEditingKey('')
+  }
+
+  const validateEdit = async () => {
+    return await form.validateFields().catch((err) => {
+      throw err.errorFields[0].errors
+    })
   }
 
   return {
     editingKey,
-    cancelEdit,
+    cancel,
     edit,
     isEditing,
+    validateEdit,
   }
 }

@@ -7,7 +7,7 @@ const tableReducer =
       case 'SAVE':
         return {
           ...state,
-          records: [...action.records],
+          records: action.records,
         }
       case 'ADD':
         return {

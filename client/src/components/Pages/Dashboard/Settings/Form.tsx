@@ -4,18 +4,18 @@ import { useForm } from 'antd/lib/form/Form'
 import React from 'react'
 
 import { API } from '@const'
-import AuthContext from '@context/AuthContext'
 import { SettingsProps, SettingsDataProps } from '@interfaces/settings'
 import useGenerateId from '@util/useGenerateId'
 import useEdit from '@util/useEdit'
 import { isWholeNumber } from '@util/formRules'
 import { WithRequired } from '@interfaces/util'
+import useAuthContext from '@context/AuthContext'
 
 const SettingsForm: React.FC<SettingsDataProps> = (record): JSX.Element => {
   const [form] = useForm()
-  const edit = useEdit(form)
+  const EDIT = useEdit(form)
   const generateId = useGenerateId()
-  const { auth } = React.useContext(AuthContext)
+  const { auth } = useAuthContext()
   const [setting, setSettingValue] = React.useState(record)
 
   const formItems: WithRequired<FormItemProps<SettingsProps>, 'name'>[] = [
@@ -74,7 +74,7 @@ const SettingsForm: React.FC<SettingsDataProps> = (record): JSX.Element => {
       body: JSON.stringify(newItem),
     })
 
-    edit.cancelEdit()
+    EDIT.cancel()
   }
 
   return (
@@ -92,7 +92,7 @@ const SettingsForm: React.FC<SettingsDataProps> = (record): JSX.Element => {
         >
           {formItems.map((item, key) => (
             <Form.Item key={key} style={{ marginBottom: '8px', width: '100%' }}>
-              {edit.editingKey === item.id ? (
+              {EDIT.editingKey === item.id ? (
                 <Space
                   style={{ whiteSpace: 'nowrap', width: '100%' }}
                   className="flex-center-space"
@@ -105,7 +105,6 @@ const SettingsForm: React.FC<SettingsDataProps> = (record): JSX.Element => {
                       display: 'inline-block',
                       height: '32px',
                       marginRight: 0,
-                      gap: 0,
                     }}
                     label=""
                   />
@@ -117,7 +116,7 @@ const SettingsForm: React.FC<SettingsDataProps> = (record): JSX.Element => {
                   </Typography.Link>
                   <Typography.Link
                     style={{ display: 'inline-block' }}
-                    onClick={() => edit.cancelEdit()}
+                    onClick={() => EDIT.cancel()}
                   >
                     Cancel
                   </Typography.Link>
@@ -127,9 +126,9 @@ const SettingsForm: React.FC<SettingsDataProps> = (record): JSX.Element => {
                   {item.label}
                   {item.initialValue}
                   <Typography.Link
-                    disabled={!!edit.editingKey}
+                    disabled={!!EDIT.editingKey}
                     onClick={() => {
-                      edit?.edit({ ...record, id: item.id as string })
+                      EDIT?.edit({ ...record, id: item.id })
                     }}
                   >
                     <EditFilled />

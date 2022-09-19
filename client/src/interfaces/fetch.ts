@@ -3,10 +3,7 @@ export interface useFetchOptions {
   cache?: boolean
 }
 
-export interface Fetch {
-  url: RequestInfo
-  options?: RequestInit
-}
+export type Fetch = [{ url: RequestInfo; options?: RequestInit }]
 
 export interface FetchState<T> {
   isLoading: boolean

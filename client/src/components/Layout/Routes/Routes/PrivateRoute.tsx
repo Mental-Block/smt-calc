@@ -1,14 +1,14 @@
 import React from 'react'
 
 import { PATH, ROLE } from '@const'
-import AuthContext from '@context/AuthContext'
+import useAuthContext from '@context/AuthContext'
 import { RouteProps } from '@interfaces/layout'
 
 import RouteWithSubRoutes from './RoutesWithSubRoutes'
 import { Redirect } from 'react-router-dom'
 
 const PrivateRoute: React.FC<RouteProps> = (route): JSX.Element => {
-  const { auth } = React.useContext(AuthContext)
+  const { auth } = useAuthContext()
 
   return (
     <React.Fragment>

@@ -10,27 +10,31 @@ import {
 } from 'antd/lib/table/interface'
 
 export type TablePagination = TablePaginationConfig & {
-  total: number
   current: number
   pageSize: number
 }
 
-export interface TableContextProps<T> {
+export interface TableProps<T> {
   records: T[]
-  pagination?: TablePagination
+  pageLength: number
 }
 
-export interface TableState<RecordType> {
-  records: RecordType[]
+export interface TableState<T> {
+  records: T[]
   pagination: TablePagination
-  change?: TableOnChange<RecordType>
+  change?: TableOnChange<T>
 }
 
-export interface TableOnChange<RecordType> {
+export interface TableContext<T> {
+  table: TableState<T>
+  setTable: (table: Omit<TableState<T>, 'change'>) => void
+}
+
+export interface TableOnChange<T> {
   pagination?: TablePagination
-  filters?: Record<keyof RecordType, FilterValue | null>
-  sorter?: SorterResult<RecordType> | SorterResult<RecordType>[]
-  extra?: TableCurrentDataSource<RecordType>
+  filters?: Record<keyof T, FilterValue | null>
+  sorter?: SorterResult<T> | SorterResult<T>[]
+  extra?: TableCurrentDataSource<T>
 }
 
 export type TableAction<T> =
@@ -40,22 +44,18 @@ export type TableAction<T> =
   | { type: 'ADD'; item: T }
   | { type: 'DELETE'; id: number }
 
-export interface ColumnType<RecordType> extends AntColumnType<RecordType> {
+export interface ColumnType<T> extends AntColumnType<T> {
   editable?: boolean
   inputNode?: React.ReactChild
   formItem?: FormItemProps
 }
 
-export interface TableQuery {
+export interface TableQuery<T> {
   pagination?: TablePagination
-  sorter?: SorterResult<any> | SorterResult<any>[]
-  sortField?: string
-  sortOrder?: string
-}
-
-export interface TableProps<RecordType> {
-  records: RecordType[]
-  pageLength: number
+  sorter?: SorterResult<T>[] | SorterResult<T>
+  field?: string
+  order?: string
+  filters?: any
 }
 
 export interface EditableCellProps extends React.HTMLAttributes<HTMLElement> {
@@ -76,13 +76,15 @@ export interface RenderColumn {
 }
 
 export interface DateColumnProps {
-  date: Date
+  date: string | number
 }
 
 export interface TimeColumnProps {
-  date: Date
-  finishedText: string
-  finishedStatus: 'error' | 'success'
+  date: string
+  finished?: {
+    className?: string
+    text: string
+  }
 }
 
 export interface ActionColumnProps {

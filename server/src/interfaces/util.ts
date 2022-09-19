@@ -7,7 +7,7 @@ type _Explode<T, O extends string> = T extends object
                 key: `${K}${E['key'] extends '' ? '' : O}${E['key']}`
                 value: E extends any[] ? E['value'][] : E['value']
                 optional: E['key'] extends ''
-                  ? {} extends Pick<T, K>
+                  ? object extends Pick<T, K>
                     ? true
                     : false
                   : E['optional']

@@ -11,15 +11,11 @@ export const REFRESH_TOKEN_COOKIE = "refreshToken"
 export const DOMAIN = ".smt-calc.com"
 export const MAX_REFLOW_PASSES = 3
 
-// settings ROUTEs needs save to have validation
-// 220°C - 225°C maximum reflow temperature
-
 export enum TIME {
   EIGHT_HOURS = 28800000, // ms
   TWELVE_HOURS = 43200000, // ms
   NOW = 0,
 }
-
 
 export enum ENTITY {
   user = "users",
@@ -75,17 +71,6 @@ export const REGEX = {
     lettersWSpace: /^[a-z A-Z]+$/,
     description: /^(.|\s)*[a-zA-Z]+(.|\s)*$/,
     partNames:  /^[A-Za-z 0-9()]+$/,
-}
-
-export const MSL_FLOOR_LIFE: Record<MSLLevelType, number>  = {
-  '1': 365 * 100, // Unlimited at ≤30°C/85% RH 
-  '2': 360, // 360 days
-  '2a': 28, // 28 days
-  '3': 7,  // 7 days
-  '4': 3, // 3 days
-  '5': 2, // 2 days
-  '5a': 1, // 1 day
-  '6': 0, // Now
 }
 
 export const ROLES:  Record<UserRoleType, UserRoleType> = {

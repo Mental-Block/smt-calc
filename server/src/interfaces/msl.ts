@@ -19,8 +19,8 @@ export interface FloorLifeProps {
 // label_component is nessary as we are mapping from label side of the relation
 type FloorLifeWRelations = FloorLifeProps & { label: LabelProps, label_component: ComponentProps  }
 
-export type DelMSL = Pick<FloorLifeProps, 'id'>
+export type DelMSL = Pick<LabelProps, 'partId'>
 export type AddMSL = Pick<LabelProps, 'partId'>
 export type AllMSL = Pick<DeepFlatten<FloorLifeWRelations, '_'>, 'availableAt' | 'createdAt' | 'id' | 'label_component_partnumberInternal' | 'updatedAt' | 'status' | 'level' | 'label_partId'> & TableProps
-export type PauseMSL = Pick<FloorLifeProps, 'id'>
-export type getStatMSL = Pick<FloorLifeProps, 'id'>
+export type PauseMSL = Pick<LabelProps, 'partId'>
+export type getStatMSL = Pick<LabelProps, 'partId'>

@@ -2,7 +2,7 @@ import { getRepository } from "typeorm";
 import { Request } from "express";
 
 
-import { COMPONENT, ENTITY, ERRORS, FLOOR_LIFE, LABEL } from "@const";
+import { COMPONENT, ENTITY, FLOOR_LIFE, LABEL } from "@const";
 import { FloorLife, Label } from "@entities";
 
 import { toFlatPropertyMap } from "@util/toFlatPropertyMap";
@@ -94,10 +94,10 @@ export default class FloorlifeController {
   async add(req: Request<AddMSL>) {
     const { partId } = req.params
 
-    const label = await this.LabelRepository.findOne({ where: { partId }, relations: [`${ENTITY.component}`, `msl`]})
+    const label = await this.LabelRepository.findOne({ where: { partId }, relations: [`component`, `msl`]})
 
-    if(!label) throw new Error(ERRORS.labelNotFound)
-    if(label.msl) throw new Error(ERRORS.labelInUse)
+    if(!label) throw new Error('no label found')    
+    if(label.msl) throw new Error('this msl is already added')
 
    const MSL = this.FloorlifeRepository.create({
       level: label.component.mslLevel,
@@ -122,29 +122,35 @@ export default class FloorlifeController {
   }
 
   async del (req: Request<DelMSL> ){
-    const { id } = req.params
+    const { partId } = req.params
 
-    await this.FloorlifeRepository.delete({ id });
+    const label = await this.LabelRepository.findOne({ where: { partId }, relations: [`component`, `msl`]})
+
+    if(!label) throw new Error('no label found')  
+    if(!label.msl)  throw new Error('no floor life found')
+
+    await this.FloorlifeRepository.delete({ id: label.msl.id });
 
     return true
   }
 
   async unpause (req: Request) {
-    const { id } = req.params
+    const { partId } = req.params
 
-    const msl = await this.FloorlifeRepository.findOne({ where: { id } })
+    const label = await this.LabelRepository.findOne({ where: { partId }, relations: [`component`, `msl`]})
 
-    if (!msl) throw new Error(ERRORS.notMSLLevel)
+    if(!label) throw new Error('no label found')    
+    if (!label.msl) throw new Error('no floor life found')
 
-    const Clock = new FloorLifeClock(msl.level)
+    const Clock = new FloorLifeClock(label.msl.level)
 
     const newMsl: FloorLifeProps = {
-      ...msl,
-      availableAt: Clock.unPause(msl.status, msl.availableAt, msl.updatedAt),
+      ...label.msl,
+      availableAt: Clock.unPause(label.msl.status, label.msl.availableAt, label.msl.updatedAt),
       status: 'EXPIRING',
     }
 
-    const newFloorlife = this.FloorlifeRepository.merge(msl, newMsl);
+    const newFloorlife = this.FloorlifeRepository.merge(label.msl, newMsl);
 
     await this.FloorlifeRepository.save(newFloorlife);
 
@@ -152,23 +158,24 @@ export default class FloorlifeController {
   }
 
   async pause (req: Request) {
-    const { id } = req.params
+    const { partId } = req.params
 
-    const MSL = await this.FloorlifeRepository.findOne({ where: { id } })
+    const label = await this.LabelRepository.findOne({ where: { partId }, relations: [`component`, `msl`]})
 
-    if (!MSL) throw new Error(ERRORS.notMSLLevel)
+    if(!label) throw new Error('no label found')    
+    if (!label.msl) throw new Error('no floor life found')
 
-    const Clock = new FloorLifeClock(MSL.level)
+    const Clock = new FloorLifeClock(label.msl.level)
 
-    let status = Clock.getStatus(MSL.availableAt) as MSLStatusType
+    let status = Clock.getStatus(label.msl.availableAt) as MSLStatusType
 
     const newMSL: FloorLifeProps = {
-      ...MSL,
-      availableAt: Clock.pause(status, MSL.availableAt),
+      ...label.msl,
+      availableAt: Clock.pause(status, label.msl.availableAt),
       status,
     }
 
-    const newFloorlife = this.FloorlifeRepository.merge(MSL, newMSL);
+    const newFloorlife = this.FloorlifeRepository.merge(label.msl, newMSL);
 
     await this.FloorlifeRepository.save(newFloorlife);
 

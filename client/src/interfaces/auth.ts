@@ -16,5 +16,5 @@ export interface AuthProps {
 
 export interface AuthContextProps {
   auth: AuthProps
-  setAuth: React.Dispatch<React.SetStateAction<AuthProps>>
+  setAuth: (data: AuthProps) => void
 }

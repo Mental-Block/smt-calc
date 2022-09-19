@@ -1,60 +1,39 @@
-import React from 'react'
+import { usePublicApi } from '@API'
+import useAuthContext from '@context/AuthContext'
 
-import { API } from '@const'
+import type { AuthProps } from '@interfaces/auth'
+import type { LoginProps } from '@interfaces/user'
 
-import { AuthProps } from '@interfaces/auth'
 import getToken from './getToken'
 
-import { LoginProps } from '@interfaces/user'
-import AuthContext from '@context/AuthContext'
-
 const useAuth = () => {
-  const { setAuth } = React.useContext(AuthContext)
+  const API = usePublicApi()
+  const { setAuth } = useAuthContext()
 
   const login = async (values: LoginProps) => {
-    const res = await fetch(`${API.USER}/login`, {
-      headers: {
-        Accept: 'application/json',
-        'Content-Type': 'application/json',
-      },
-      credentials: 'include',
-      method: 'POST',
-      body: JSON.stringify(values),
-    })
-
-    if (!res.ok) {
-      setAuth({ ok: false })
-      return false
-    }
-
-    const data: AuthProps = await res.json()
-
-    const token = getToken(data.accessToken)
-    setAuth({ ...data, role: token?.role })
-
-    return true
+    return await API<AuthProps>('userLogin', values)
+      .then((data) => {
+        const token = getToken(data.accessToken)
+        setAuth({ ...data, role: token?.role })
+        return true
+      })
+      .catch(() => {
+        setAuth({ ok: false, accessToken: undefined, role: undefined })
+        throw `Incorrect username or password!`
+      })
   }
 
   const logout = async () => {
-    try {
-      const res = await fetch(`${API.USER}/logout`, {
-        credentials: 'include',
+    await API('userLogout')
+      .then(() => {
+        setAuth({ ok: false, accessToken: undefined, role: undefined })
       })
-
-      if (res.ok) {
-        const data: AuthProps = await res.json()
-
-        setAuth(data)
-      }
-    } catch (error) {
-      console.error(error)
-    }
+      .catch(() => {
+        throw 'Failed to log out successfully'
+      })
   }
 
-  return {
-    logout,
-    login,
-  }
+  return { login, logout }
 }
 
 export default useAuth

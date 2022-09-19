@@ -1,33 +1,60 @@
-import { MSL_STATUS, MSL_FLOOR_LIFE, TIME } from "@const"
+import { MSL_STATUS, TIME } from "@const"
 import { TDateISO } from "@interfaces/date"
 import { MSLLevelType } from "@interfaces/msl"
 
+
+//  Equvilent to ≤30°C/60% RH
+const MSL_FLOOR_LIFE: Record<MSLLevelType, number>  = {
+  '1': 365 * 100, // Unlimited at ≤30°C/85% RH 
+  '2': 360, // 360 days
+  '2a': 28, // 28 days
+  '3': 7,  // 7 days
+  '4': 3, // 3 days
+  '5': 2, // 2 days
+  '5a': 1, // 1 day
+  '6': 0, // Now
+}
+
+// function EVToJoules(n: number) {
+// }
+
+// function celsiusToKelvin(C: number){
+//   const K = 273.15
+//   return C + K
+// }
+
+// function boltzman(){
+//   return 8.62 * Math.pow(10, -5); // 8.617 333 262... x 10-5 eV K-1 BOLTZMAN CONSTANT
+// }
+
+// function RHCheck(tempature: number, RH: number) {
+//   const RELATIVE_HUMITIY = 60 // RH%
+//   const C = celsiusToKelvin(tempature)
+
+//   if(RH <= RELATIVE_HUMITIY) {
+
+// }
+
+// function arrheniusEquation (tempature: number, RH: number) {
+
+//   let a = 0 // acceleration factor
+//   let Eaa = -0 // activation energy
+//   // const K = 8.62 * Math.pow(10, -5); // 8.617 333 262... x 10-5 eV K-1 BOLTZMAN CONSTANT
+//   const K = 0  // subsitute the gas CONSTANT for BOLTZMAN CONSTANT
+//   const T1 = K // absolute tempature test value of k 
+//   const T2 = K // absolute tempature system value of k  
+// }
+//   /* RH > RELATIVE_HUMITIY */
+// }
+
 /* 
-  4.1.2.2 Moisture Sensitivity Levels 4, 5, 5a For moisture sensitivity Levels 4, 5, 5a with floor life exposure not greater
-  than eight hours, a minimum desiccating period of 10X the exposure time is required to dry the SMD packages enough to
-  reset the floor life clock see Table 4-3. This can be accomplished by dry pack according to 3.3 or a dry cabinet that is capable
-  of maintaining not greater than 5% RH.
-
-  5.2 Floor Life The floor life of SMDs per Table 5-1 will be modified by environmental conditions other than 30°C/60%
-  RH. Refer to Clause 7 to determine maximum allowable time before rebake would be necessary. If partial lots are used, the
-  remaining SMD packages must be resealed or placed in safe storage within one hour of bag opening (see 5.3). If one hour
-  exposure is exceeded, refer to 4.1.
-
-  ----> Don't need to wory about Clause 7 as we are well within the paramaters. eventually well do Table 7-1
-
-  7 DERATING DUE TO FACTORY ENVIRONMENTAL CONDITIONS
-    Factory floor life exposures for SMD packages removed from the dry bags will be a function of the ambient environmental
-    conditions. A safe, yet conservative, handling approach is to expose the SMD packages only up to the maximum time limits for each moisture sensitivity level as shown in Table 5-1. This approach, however, does not work if the factory humidity
-    or temperature is greater than the testing conditions of 30°C/60% RH. A solution for addressing this problem is to derate the
-    exposure times based on the knowledge of moisture diffusion in the component packaging materials (ref. JESD22- A120).
-    Recommended equivalent total floor life exposures can be estimated for a range of humidities and temperatures based on
-    the worst case exposure conditions and the nominal plastic thickness for each device. Table 7-1 lists equivalent derated floor
+     Table 7-1 lists equivalent derated floor
     lives for humidities ranging from 5-90% RH for temperatures of 20°C, 25°C, 30°C and 35°C. This table is applicable to
     SMDs molded with novolac, biphenyl or multifunctional epoxy mold compounds. The following assumptions were used in
-
-  TODO
-  Add a check to make sure cabinent humidity less than 5RH% for 4,5,5a and less than 10RH% for 2,2a,3 
-  well as factory temp is less than ≤30°C/60%
+    calculating Table 7-1:
+    1. Activation Energy for diffusion = 0.35eV (smallest known value).
+    2. For ≤60% RH, use Diffusivity = 0.121exp (- 0.35eV/kT) mm2/s (this uses smallest known Diffusivity @ 30°C).
+    3. For >60% RH, use Diffusivity = 1.320exp (- 0.35eV/kT) mm2/s (this uses largest known Diffusivity @ 30°C).
 */
 
 export default class FloorLifeClock {
@@ -88,6 +115,7 @@ export default class FloorLifeClock {
     const CURRENT_TIME = new Date().getTime()
     const TIME_LFET = new Date(time).getTime()
     const TIME = TIME_LFET - CURRENT_TIME
+
     return TIME 
   }
   
@@ -108,7 +136,7 @@ export default class FloorLifeClock {
     return TIME
   }
 
-  private _convertRecoveringIntoExpiring (recoveryTime: TDateISO): number {
+  private _recoveringIntoExpiring (recoveryTime: TDateISO): number {
     const CURRENT_RECOVER_TIME  = this._remainingExposureTime(recoveryTime)
     const EXPOSURE_MODIFIRE = this._exposureTimeModifier
     const TIME = CURRENT_RECOVER_TIME / EXPOSURE_MODIFIRE 
@@ -116,7 +144,7 @@ export default class FloorLifeClock {
     return TIME
   }
 
-  private _convertExpiringIntoRecovering(availableAt: TDateISO): number { 
+  private _expiringIntoRecovering(availableAt: TDateISO): number { 
       const CURRENT_EXPOSURE_TIME = this._currentExposureTime(availableAt)
       const EXPOSURE_MODIFIRE = this._exposureTimeModifier
       const TIME =  EXPOSURE_MODIFIRE * CURRENT_EXPOSURE_TIME
@@ -124,7 +152,7 @@ export default class FloorLifeClock {
       return TIME
   }
 
-  private _convertUpdateTimeDifference (updatedAt: TDateISO): number{
+  private _updateTimeDifference (updatedAt: TDateISO): number{
     const CURRENT_UPDATE_TIME = this._currentUpdateTime(updatedAt)
     const EXPOSURE_MODIFIRE = this._exposureTimeModifier
     const TIME = CURRENT_UPDATE_TIME / EXPOSURE_MODIFIRE
@@ -192,15 +220,15 @@ export default class FloorLifeClock {
 
   pause (status: Omit<keyof typeof MSL_STATUS, 'EXPIRING' | 'EXPIRED'>, time: TDateISO): TDateISO  {
     // const EXPIRING = time
-    // const EXPIRED = FloorLifeClock.convertDateIntoIsoDate(Date.now())
+    // const EXPIRED = FloorLifeClock.convertdateToIsodate(Date.now())
     const PAUSED = time
     const RECOVERD = this.createExpireDate()
     const RECOVERING = () => {
       const CURRENT_TIME = Date.now()
-      const RECOVERY_TIME = this._convertExpiringIntoRecovering(time)
+      const RECOVERY_TIME = this._expiringIntoRecovering(time)
       const TIME = CURRENT_TIME + RECOVERY_TIME
 
-      return FloorLifeClock.convertDateIntoIsoDate(TIME)
+      return FloorLifeClock.dateToIsodate(TIME)
     } 
     
     switch (status) {
@@ -237,22 +265,22 @@ export default class FloorLifeClock {
  */
   unPause (prevStatus: Omit<keyof typeof MSL_STATUS, 'EXPIRING' | 'EXPIRED'>, time: TDateISO, updateTime: TDateISO) {
     // const EXPIRING = time
-    // const EXPIRED = FloorLifeClock.convertDateIntoIsoDate(Date.now())
+    // const EXPIRED = FloorLifeClock.convertdateToIsodate(Date.now())
     const RECOVERD = this.createExpireDate()
     const PAUSED = () => {
       const UPDATED_TIME = this._currentUpdateTime(updateTime)
       const CURRENT_TIME = new Date(time).getTime() + UPDATED_TIME
-      const TIME = UPDATED_TIME + CURRENT_TIME
-
-      return FloorLifeClock.convertDateIntoIsoDate(TIME)
+      
+      return FloorLifeClock.dateToIsodate(CURRENT_TIME)
     }
     const RECOVERING = () => {
-      const EXPIRE_TIME = this._convertRecoveringIntoExpiring(time)
-      const UPDATED_TIME = this._convertUpdateTimeDifference(updateTime)
-      const EXPOSURE_TIME = FloorLifeClock.convertDateIntoIsoDate(EXPIRE_TIME - UPDATED_TIME)
+      const EXPIRE_TIME = this._recoveringIntoExpiring(time)
+      const UPDATED_TIME = this._updateTimeDifference(updateTime)
+      const EXPOSURE_TIME = FloorLifeClock.dateToIsodate(EXPIRE_TIME - UPDATED_TIME)
+      
       const NEW_EXPIRE_TIME = this._currentExposureTime(EXPOSURE_TIME)
 
-      return FloorLifeClock.convertDateIntoIsoDate(NEW_EXPIRE_TIME)
+      return FloorLifeClock.dateToIsodate(NEW_EXPIRE_TIME)
     }
 
     switch (prevStatus) {
@@ -271,7 +299,7 @@ export default class FloorLifeClock {
     }
   }
   
-  static convertDateIntoIsoDate (date: number | Date ): TDateISO {
+  static dateToIsodate (date: number | Date ): TDateISO {
     return new Date(date).toISOString() as TDateISO 
   }
 
@@ -300,84 +328,3 @@ export default class FloorLifeClock {
     return [d, pad(h), pad(m)].join(':')
   }
 }
-
-/* 
-      Body Thickness ≥3.1 mm
-      including
-      PQFPs >84 pins, PQFP
-      PLCCs (square)
-      All MQFPs
-      or
-      All BGAs ≥1 mm
-
-      Body
-      2.1 mm ≤ Thickness
-      <3.1 mm
-      including
-      PLCCs (rectangular)
-      18-32 pins
-      SOICs (wide body)
-      SOICs ≥20 pins,
-      PQFPs ≤80 pins
-
-        Body Thickness <2.1 mm
-        including
-        SOICs <18 pins
-        All TQFPs, TSOPs
-        or
-        All BGAs <1 mm body
-        thickness
-
-    Table 7-1 lists equivalent derated floor
-    lives for humidities ranging from 5-90% RH for temperatures of 20°C, 25°C, 30°C and 35°C. This table is applicable to
-    SMDs molded with novolac, biphenyl or multifunctional epoxy mold compounds. The following assumptions were used in
-    calculating Table 7-1:
-    1. Activation Energy for diffusion = 0.35eV (smallest known value).
-    2. For ≤60% RH, use Diffusivity = 0.121exp (- 0.35eV/kT) mm2
-    /s (this uses smallest known Diffusivity @ 30°C).
-    3. For >60% RH, use Diffusivity = 1.320exp (- 0.35eV/kT) mm2
-    /s (this uses largest known Diffusivity @ 30°C).
-
-*/
-
-// export class FloorLifeClockTwo {
-//   private _mslLevel: MSLLevelType
-//   private _humidity: number
-//   private _tempature: number
-//   private _bodythickness: number
-
-//   constructor(mslLevel:  MSLLevelType, humidity: number, tempature: number, bodyThickness: number){
-//     this._mslLevel = mslLevel
-//     this._humidity = humidity
-//     this._tempature = tempature
-//     this._bodythickness = bodyThickness
-//   }
-
-//   bob (tempature: number) {
-//    switch (tempature) {
-//      case value:
-       
-//        break;
-   
-//      default:
-//        break;
-//    }
-//   }
-
-
-
-//   /*
-//     35°C
-//     30°C
-//     25°C
-//     20°C
-//   */
-
-//   checkHumidity(){
-//     if (this._humidity <= 60 && this._tempature <= ) {
-
-//     }
-//   }
-
-  
-// }

@@ -2,6 +2,7 @@ import React from 'react'
 import { Switch, useHistory } from 'react-router-dom'
 
 import { PATH } from '@const'
+
 const FourOhFour: React.FC = () => {
   const history = useHistory()
   React.useEffect(() => {
