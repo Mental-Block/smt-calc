@@ -1,15 +1,14 @@
-import { ComponentNameProps, ComponentProps } from "@interfaces/component"
-import { LabelProps } from "@interfaces/label"
-import { MSLLevelType, FloorLifeProps, MSLStatusType } from "@interfaces/msl"
-import { SettingProps } from "@interfaces/setting"
-import { TableProps } from "@interfaces/table"
-import { RegisterUserProps, UserRoleType, } from "@interfaces/user"
+import type { ComponentNameProps, ComponentProps } from "@interfaces/component"
+import type { LabelProps } from "@interfaces/label"
+import type { MSLLevelType, FloorLifeProps, MSLStatusType } from "@interfaces/msl"
+import type { SettingProps } from "@interfaces/setting"
+import type { TableProps } from "@interfaces/table"
+import type { RegisterUserProps, UserRoleType, } from "@interfaces/user"
 
 export const __prod__ = process.env.NODE_ENV === "production"
 export const TOKEN_COOKIE = "token"
 export const REFRESH_TOKEN_COOKIE = "refreshToken"
 export const DOMAIN = ".smt-calc.com"
-export const MAX_REFLOW_PASSES = 3
 
 export enum TIME {
   EIGHT_HOURS = 28800000, // ms

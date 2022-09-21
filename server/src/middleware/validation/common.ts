@@ -1,7 +1,7 @@
 import { cookie, param, query, ValidationChain, Location, body } from "express-validator"
 import { ERRORS, REFRESH_TOKEN_COOKIE } from "@const"
 
-export const checkIfValueInObjectCheck = (obj: object, value: string, errorMsg?: string) => {
+export const checkIfValueInObject = (obj: object, value: string, errorMsg?: string) => {
   const values = Object.values(obj).map((val) => val)
   if(values.map(val => val !== value)){
 

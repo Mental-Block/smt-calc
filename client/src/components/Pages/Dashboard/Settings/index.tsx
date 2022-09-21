@@ -1,8 +1,6 @@
 import React from 'react'
 
 import { API } from '@const'
-import Spin from '@components/shared/Spin'
-import Error from '@components/shared/Error'
 import useFetch from '@util/useFetch'
 
 import SettingsForm from './Form'

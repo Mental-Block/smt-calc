@@ -3,7 +3,7 @@ import { TDateISO } from "@interfaces/date"
 import { MSLLevelType } from "@interfaces/msl"
 
 
-//  Equvilent to ≤30°C/60% RH
+//  TABLE 5-1
 const MSL_FLOOR_LIFE: Record<MSLLevelType, number>  = {
   '1': 365 * 100, // Unlimited at ≤30°C/85% RH 
   '2': 360, // 360 days
@@ -15,47 +15,16 @@ const MSL_FLOOR_LIFE: Record<MSLLevelType, number>  = {
   '6': 0, // Now
 }
 
-// function EVToJoules(n: number) {
-// }
-
-// function celsiusToKelvin(C: number){
-//   const K = 273.15
-//   return C + K
-// }
-
-// function boltzman(){
-//   return 8.62 * Math.pow(10, -5); // 8.617 333 262... x 10-5 eV K-1 BOLTZMAN CONSTANT
-// }
-
-// function RHCheck(tempature: number, RH: number) {
-//   const RELATIVE_HUMITIY = 60 // RH%
-//   const C = celsiusToKelvin(tempature)
-
-//   if(RH <= RELATIVE_HUMITIY) {
-
-// }
-
-// function arrheniusEquation (tempature: number, RH: number) {
-
-//   let a = 0 // acceleration factor
-//   let Eaa = -0 // activation energy
-//   // const K = 8.62 * Math.pow(10, -5); // 8.617 333 262... x 10-5 eV K-1 BOLTZMAN CONSTANT
-//   const K = 0  // subsitute the gas CONSTANT for BOLTZMAN CONSTANT
-//   const T1 = K // absolute tempature test value of k 
-//   const T2 = K // absolute tempature system value of k  
-// }
-//   /* RH > RELATIVE_HUMITIY */
-// }
-
 /* 
      Table 7-1 lists equivalent derated floor
     lives for humidities ranging from 5-90% RH for temperatures of 20°C, 25°C, 30°C and 35°C. This table is applicable to
     SMDs molded with novolac, biphenyl or multifunctional epoxy mold compounds. The following assumptions were used in
     calculating Table 7-1:
-    1. Activation Energy for diffusion = 0.35eV (smallest known value).
+    1. Activation Energy for diffusion =35eV (smallest known value).
     2. For ≤60% RH, use Diffusivity = 0.121exp (- 0.35eV/kT) mm2/s (this uses smallest known Diffusivity @ 30°C).
     3. For >60% RH, use Diffusivity = 1.320exp (- 0.35eV/kT) mm2/s (this uses largest known Diffusivity @ 30°C).
 */
+
 
 export default class FloorLifeClock {
   private _mslLevel: MSLLevelType

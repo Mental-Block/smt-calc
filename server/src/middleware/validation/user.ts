@@ -1,6 +1,6 @@
 import { check, ValidationChain, query, Location, body, param } from 'express-validator';
 import { ERRORS, USER, REGEX, ROLES } from '@const';
-import { checkIfValueInObjectCheck } from './common';
+import { checkIfValueInObject } from './common';
 
 
 export const username = (name: string, location: Location = 'body'): ValidationChain => {
@@ -46,7 +46,7 @@ export const role = (name: string, location: Location = 'body'): ValidationChain
             .trim()
             .toLowerCase()
             .isString().withMessage(ERRORS.lettersCheck).bail()
-            .custom((value: string) => checkIfValueInObjectCheck(ROLES, value, ERRORS.invalidRole))
+            .custom((value: string) => checkIfValueInObject(ROLES, value, ERRORS.invalidRole))
             .bail()        
     
         default:

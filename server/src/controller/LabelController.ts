@@ -3,8 +3,8 @@ import { Request } from "express";
 
 import { Component, Label } from "@entities";
 
-import { COMPONENT, ENTITY, ERRORS, LABEL } from "@const";
-import { AddLabel, AllLabel, DelLabel } from "@interfaces/label";
+import { COMPONENT, ENTITY, LABEL } from "@const";
+import type { AddLabel, AllLabel, DelLabel } from "@interfaces/label";
 
 import Table from "@util/Table";
 import { toFlatPropertyMap } from "@util/toFlatPropertyMap";
@@ -36,63 +36,73 @@ export default class LabelController {
       fixedSortFeild, 
       sortOrder,
     )
-    
-    const data = await this.LabelRepository.createQueryBuilder(`${ENTITY.label}`)
-    .leftJoin(`${ENTITY.label}.${ENTITY.component}`, `${ENTITY.component}`)
-    .select([
-      `${ENTITY.label}.${LABEL.id}`,
-      `${ENTITY.label}.${LABEL.partId}`,
-      `${ENTITY.component}.${COMPONENT.partnumberInternal}`,
-      `${ENTITY.component}.${COMPONENT.partnumberManufactor}`
-    ])
-    .andWhere(partId ? `${ENTITY.label}.${LABEL.partId} ::TEXT ILIKE :${LABEL.partId} ::TEXT` 
-    : `TRUE`, {partId : `%${partId}%` })
-    .andWhere(component_partnumberInternal ?  `${ENTITY.component}.${COMPONENT.partnumberInternal} ILIKE :${COMPONENT.partnumberInternal}` 
-    : `TRUE`, { partnumberInternal: `%${component_partnumberInternal}%` })
-    .andWhere(component_partnumberManufactor ?  `${ENTITY.component}.${COMPONENT.partnumberManufactor} ILIKE :${COMPONENT.partnumberManufactor}` 
-    : `TRUE`, { partnumberManufactor: `%${component_partnumberManufactor}%` })
-    .skip(createdPage.skip)
-    .take(createdPage.pageSize)
-    .orderBy(createdSort.sortField, createdSort.sortOrder)
-    .getManyAndCount()
+    try {
+      const data = await this.LabelRepository.createQueryBuilder(`${ENTITY.label}`)
+      .leftJoin(`${ENTITY.label}.${ENTITY.component}`, `${ENTITY.component}`)
+      .select([
+        `${ENTITY.label}.${LABEL.id}`,
+        `${ENTITY.label}.${LABEL.partId}`,
+        `${ENTITY.component}.${COMPONENT.partnumberInternal}`,
+        `${ENTITY.component}.${COMPONENT.partnumberManufactor}`
+      ])
+      .andWhere(partId ? `${ENTITY.label}.${LABEL.partId} ::TEXT ILIKE :${LABEL.partId} ::TEXT` 
+      : `TRUE`, {partId : `%${partId}%` })
+      .andWhere(component_partnumberInternal ?  `${ENTITY.component}.${COMPONENT.partnumberInternal} ILIKE :${COMPONENT.partnumberInternal}` 
+      : `TRUE`, { partnumberInternal: `%${component_partnumberInternal}%` })
+      .andWhere(component_partnumberManufactor ?  `${ENTITY.component}.${COMPONENT.partnumberManufactor} ILIKE :${COMPONENT.partnumberManufactor}` 
+      : `TRUE`, { partnumberManufactor: `%${component_partnumberManufactor}%` })
+      .skip(createdPage.skip)
+      .take(createdPage.pageSize)
+      .orderBy(createdSort.sortField, createdSort.sortOrder)
+      .getManyAndCount()
 
-    return { records: data[0].map((obj) => toFlatPropertyMap(obj, '_')), pageLength: data[1] }
+      return { records: data[0].map((obj) => toFlatPropertyMap(obj, '_')), pageLength: data[1] }
+    } catch (error: any) {
+      throw new Error(error || 'Failed to get label records!') 
+    }
   }
 
   async del(req: Request<DelLabel>) {
     const { id } = req.params
-
+    try {
       const label = await this.LabelRepository.findOne({ where: { id }, relations: ['msl']});
-
-      if(!label) throw new Error(ERRORS.labelNotFound)
-      if(label.msl) throw new Error(ERRORS.mslInuse)
+      
+      if(!label) throw "This label doesn't exist."
+      if(label.msl) throw  "This msl is in use!"
       
       await this.LabelRepository.delete({ id });
 
       return true
+    } catch (error: any) {
+      throw new Error(error || 'Failed to delete label.') 
+    }
   }
 
   async add(req: Request<{}, {}, AddLabel>) {
     const { partId, partnumberManufactor } = req.body
 
-      const component = await this.ComponentRepository.findOne({
-        where: { partnumberManufactor }
-      })
+      try {
+        const component = await this.ComponentRepository.findOne({
+          where: { partnumberManufactor }
+        })
 
-      const newLabel = this.LabelRepository.create({
-        partId,
-        component,
-      })
+        if(!component) throw "Not a valid manufactor partnumber!"
 
-    const newlyCreatedLabel = await this.LabelRepository.save(newLabel)
+        const newLabel = this.LabelRepository.create({
+          partId,
+          component,
+        })
 
-    const newItem = {
-      id: newlyCreatedLabel.id,
-      partId: newlyCreatedLabel.partId,
-      component_partnumberManufactor: newlyCreatedLabel.component.partnumberManufactor,
-      component_partnumberInternal: newlyCreatedLabel.component.partnumberInternal,
+      const newlyCreatedLabel = await this.LabelRepository.save(newLabel)
+
+      return {
+        id: newlyCreatedLabel.id,
+        partId: newlyCreatedLabel.partId,
+        component_partnumberManufactor: newlyCreatedLabel.component.partnumberManufactor,
+        component_partnumberInternal: newlyCreatedLabel.component.partnumberInternal,
+      }        
+    } catch (error: any) {
+      throw new Error(error || 'Failed to add label.') 
     }
-
-    return newItem
   }
 }

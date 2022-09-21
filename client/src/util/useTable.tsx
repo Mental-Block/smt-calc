@@ -160,8 +160,8 @@ export default function useTable<
       successMessage(success)
       fetchDispatch({ type: 'RESOLVE' })
     }).catch((err) => {
-      failedMessage(err.message || error)
-      fetchDispatch({ type: 'REJECT', error: err.message })
+      failedMessage(err || error)
+      fetchDispatch({ type: 'REJECT', error: err })
     })
   }
 

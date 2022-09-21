@@ -49,22 +49,21 @@ const TableHeader: React.FC<TableHeaderProps> = ({ add }) => {
     await API<ManufactorPartnumber[]>(
       'internalPartNumConflict',
       partnumber_internal
-    ).then((data) => {
-      if (!data)
-        return Promise.reject(`Theres no component with this part number`)
+    )
+      .then((data) => {
+        if (data.length > 1 && !partnumberManufactor) {
+          setHideInput(false)
+          setOptions(data)
+          throw 'Theres a part number conflict. Please specify.'
+        }
 
-      if (data.length > 1 && !partnumberManufactor) {
-        setHideInput(false)
-        setOptions(data)
-        return Promise.reject('Theres a part number conflict. Please specify.')
-      }
-
-      form.setFieldsValue({
-        partnumberManufactor: data[0].partnumberManufactor,
+        form.setFieldsValue({
+          partnumberManufactor: data[0].partnumberManufactor,
+        })
+        setHideInput(true)
+        return Promise.resolve(true)
       })
-      setHideInput(true)
-      return Promise.resolve(true)
-    })
+      .catch((err) => Promise.reject(err))
   }
 
   const LABEL_ITEMS: FormItemProps<LabelProps>[] = [

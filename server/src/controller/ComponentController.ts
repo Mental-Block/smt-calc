@@ -1,11 +1,11 @@
 import { getRepository } from "typeorm";
-import { Request } from "express";
+import type { Request } from "express";
 
 import { Component } from "@entities";
 
-import { COMPONENT, ENTITY, ERRORS } from "@const";
+import { COMPONENT, ENTITY } from "@const";
 
-import { 
+import type { 
   AddComponent, 
   AllComponent, 
   DelComponent, 
@@ -38,72 +38,81 @@ export default class ComponentController {
       sortOrder,
     )
 
-    const data = await this.ComponentRepository
-    .createQueryBuilder(`${ENTITY.component}`)
-    .select([
-      `${ENTITY.component}.${COMPONENT.id}`,
-      `${ENTITY.component}.${COMPONENT.bodyThickness}`,
-      `${ENTITY.component}.${COMPONENT.description}`,
-      `${ENTITY.component}.${COMPONENT.mslLevel}`,
-      `${ENTITY.component}.${COMPONENT.name}`,
-      `${ENTITY.component}.${COMPONENT.packageType}`,
-      `${ENTITY.component}.${COMPONENT.partnumberInternal}`,
-      `${ENTITY.component}.${COMPONENT.partnumberManufactor}`,
-      `${ENTITY.component}.${COMPONENT.pinCount}`,
-      `${ENTITY.component}.${COMPONENT.vendor}`,
-    ])
-    .where(bodyThickness ? `${ENTITY.component}.${COMPONENT.bodyThickness} ::TEXT ILIKE :${COMPONENT.bodyThickness} ::TEXT` 
-    : `TRUE`, {bodyThickness: `%${bodyThickness}%`})
-    .andWhere(description ? `${ENTITY.component}.${COMPONENT.description} ILIKE :${COMPONENT.description}` 
-    : `TRUE`, {description: `%${description}%`})
-    .andWhere(pinCount ? `${ENTITY.component}.${COMPONENT.pinCount} ::TEXT ILIKE :${COMPONENT.pinCount} ::TEXT` 
-    : `TRUE`, {pinCount: `%${pinCount}%`}) 
-    .andWhere(name ?  `${ENTITY.component}.${COMPONENT.name} ILIKE :${COMPONENT.name}` 
-    : `TRUE`, { name: `%${name}%` })
-    .andWhere(partnumberInternal ?  `${ENTITY.component}.${COMPONENT.partnumberInternal} ILIKE :${COMPONENT.partnumberInternal}` 
-    : `TRUE`, { partnumberInternal: `%${partnumberInternal}%` })
-    .andWhere(partnumberManufactor ?  `${ENTITY.component}.${COMPONENT.partnumberManufactor} ILIKE :${COMPONENT.partnumberManufactor}` 
-    : `TRUE`, { partnumberManufactor: `%${partnumberManufactor}%` })
-    .andWhere(vendor ?  `${ENTITY.component}.${COMPONENT.vendor} ILIKE :${COMPONENT.vendor}` 
-    : `TRUE`, { vendor: `%${vendor}%` })
-    .andWhere(packageType ? `${ENTITY.component}.${COMPONENT.packageType} ::TEXT[] && STRING_TO_ARRAY(:${COMPONENT.packageType}, ' ')` 
-    : 'TRUE', { packageType })
-    .andWhere( mslLevel ?  
-      `${ENTITY.component}.${COMPONENT.mslLevel} ::TEXT = ANY(STRING_TO_ARRAY(:${COMPONENT.mslLevel},' ')::TEXT[])` 
-      : `TRUE`, { mslLevel })
-    .skip(createdPage.skip)
-    .take(createdPage.pageSize)
-    .orderBy('name', createdSort.sortOrder)
-    .getManyAndCount()
-    
-    return { records: data[0], pageLength: data[1] }
+    try {
+      const data = await this.ComponentRepository
+      .createQueryBuilder(`${ENTITY.component}`)
+      .select([
+        `${ENTITY.component}.${COMPONENT.id}`,
+        `${ENTITY.component}.${COMPONENT.bodyThickness}`,
+        `${ENTITY.component}.${COMPONENT.description}`,
+        `${ENTITY.component}.${COMPONENT.mslLevel}`,
+        `${ENTITY.component}.${COMPONENT.name}`,
+        `${ENTITY.component}.${COMPONENT.packageType}`,
+        `${ENTITY.component}.${COMPONENT.partnumberInternal}`,
+        `${ENTITY.component}.${COMPONENT.partnumberManufactor}`,
+        `${ENTITY.component}.${COMPONENT.pinCount}`,
+        `${ENTITY.component}.${COMPONENT.vendor}`,
+      ])
+      .where(bodyThickness ? `${ENTITY.component}.${COMPONENT.bodyThickness} ::TEXT ILIKE :${COMPONENT.bodyThickness} ::TEXT` 
+      : `TRUE`, {bodyThickness: `%${bodyThickness}%`})
+      .andWhere(description ? `${ENTITY.component}.${COMPONENT.description} ILIKE :${COMPONENT.description}` 
+      : `TRUE`, {description: `%${description}%`})
+      .andWhere(pinCount ? `${ENTITY.component}.${COMPONENT.pinCount} ::TEXT ILIKE :${COMPONENT.pinCount} ::TEXT` 
+      : `TRUE`, {pinCount: `%${pinCount}%`}) 
+      .andWhere(name ?  `${ENTITY.component}.${COMPONENT.name} ILIKE :${COMPONENT.name}` 
+      : `TRUE`, { name: `%${name}%` })
+      .andWhere(partnumberInternal ?  `${ENTITY.component}.${COMPONENT.partnumberInternal} ILIKE :${COMPONENT.partnumberInternal}` 
+      : `TRUE`, { partnumberInternal: `%${partnumberInternal}%` })
+      .andWhere(partnumberManufactor ?  `${ENTITY.component}.${COMPONENT.partnumberManufactor} ILIKE :${COMPONENT.partnumberManufactor}` 
+      : `TRUE`, { partnumberManufactor: `%${partnumberManufactor}%` })
+      .andWhere(vendor ?  `${ENTITY.component}.${COMPONENT.vendor} ILIKE :${COMPONENT.vendor}` 
+      : `TRUE`, { vendor: `%${vendor}%` })
+      .andWhere(packageType ? `${ENTITY.component}.${COMPONENT.packageType} ::TEXT[] && STRING_TO_ARRAY(:${COMPONENT.packageType}, ' ')` 
+      : 'TRUE', { packageType })
+      .andWhere( mslLevel ?  
+        `${ENTITY.component}.${COMPONENT.mslLevel} ::TEXT = ANY(STRING_TO_ARRAY(:${COMPONENT.mslLevel},' ')::TEXT[])` 
+        : `TRUE`, { mslLevel })
+      .skip(createdPage.skip)
+      .take(createdPage.pageSize)
+      .orderBy('name', createdSort.sortOrder)
+      .getManyAndCount()
+      
+      return { records: data[0], pageLength: data[1] }
+    } catch (error: any) {
+      throw new Error(error || 'Failed to get component records!')
+    }
   }
 
   async add(req: Request<{}, {}, AddComponent>) {
    const componentProps = req.body
 
-    const component = this.ComponentRepository.create({
-      ...componentProps
-    })
+   try {
+      const component = this.ComponentRepository.create({
+        ...componentProps
+      })
 
-    const newComponent = await this.ComponentRepository.save(component)
+      const newComponent = await this.ComponentRepository.save(component)
 
-   return newComponent
+    return newComponent
+   } catch (error: any) {
+    throw new Error(error || 'Failed to add component.') 
+   }
   }
   
   async del(req: Request<DelComponent>) {
     const { id } = req.params
     
     try {
-      const component = await this.ComponentRepository.findOne({ where: { id } });
+      const component = await this.ComponentRepository.findOne({ where: { id }, relations: ['label'] });
 
-      if(!component) throw new Error(ERRORS.componentNotFound)
+      if(component?.label) throw  'This component is in use!'
+      if(!component) throw "This component doesn't exist!"
 
       await this.ComponentRepository.delete(component)
   
       return true
-    } catch {
-      throw new Error(ERRORS.componentInUse)
+    } catch(err: any) {
+      throw new Error(err || 'Failed to delete component.')
     }
   }
 
@@ -113,15 +122,18 @@ export default class ComponentController {
     
     const component = await this.ComponentRepository.findOne({ where: { id } })
 
-    if(!component) throw new Error("No component found!")
+    if(!component) throw new Error("This component doesn't exist!")
+    try {
+        this.ComponentRepository.merge(component, {
+          ...componentReq,
+        });
 
-    this.ComponentRepository.merge(component, {
-      ...componentReq,
-    });
-
-    await this.ComponentRepository.save(component);
-
-    return true;
+        await this.ComponentRepository.save(component);
+    
+        return true
+    } catch (error: any) {
+     throw new Error (error || 'Failed to save component!') 
+    }
   }
 
   async isMultipleInternalPartNumber (req: Request<IsMultiplePartNumber>) {
@@ -132,7 +144,7 @@ export default class ComponentController {
       select: [`partnumberManufactor`]
     })
 
-    if(partnumber.length === 0) return false
+    if(!partnumber.length) throw new Error(`Theres no component with this part number`)
 
     return partnumber
   }

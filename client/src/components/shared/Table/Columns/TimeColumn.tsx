@@ -10,7 +10,8 @@ import { TimeColumnProps } from '@interfaces/table'
 import Countdown from 'antd/lib/statistic/Countdown'
 
 const TimeColumn: React.FC<TimeColumnProps> = ({ date, finished }) => {
-  const timeLeft = new Date(date as string).getTime() - new Date().getTime()
+  const timeLeft = new Date(date).getTime() - new Date().getTime()
+  const [isFinished, setFinshed] = React.useState(timeLeft <= TIME.NOW)
 
   const defualtText = new Date(date).toDateString()
   const toolTipText =
@@ -29,12 +30,15 @@ const TimeColumn: React.FC<TimeColumnProps> = ({ date, finished }) => {
             valueStyle={{ fontSize: '16px' }}
             className="column-warning"
             value={Date.parse(date)}
+            onFinish={() => {
+              setFinshed(true)
+            }}
           />
         </Tooltip>
       )}
 
       {/* Finished */}
-      {timeLeft <= TIME.NOW && (
+      {isFinished && (
         <Tooltip title={toolTipText}>
           <div className={finished?.className}>{finished?.text}</div>
         </Tooltip>

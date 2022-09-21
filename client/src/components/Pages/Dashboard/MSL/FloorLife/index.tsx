@@ -158,7 +158,7 @@ const FloorLifeTable: React.FC = (): JSX.Element => {
       ),
       editable: true,
       inputNode: <Input />,
-      sorter: (a, b) => (a.status as string).localeCompare(b.status as string),
+      sorter: (a, b) => a.status.localeCompare(b.status),
       onFilter: (value, record): boolean => record.status === value,
     },
     {
@@ -224,7 +224,7 @@ const FloorLifeTable: React.FC = (): JSX.Element => {
           pause={{
             showIcon:
               new Date(record.availableAt).getTime() - Date.now() >= TIME.NOW ||
-              record.status === 'PAUSED',
+              record.status === 'PAUSED' || record.status === 'RECOVERING',
             isPaused: record.status !== 'EXPIRING',
             action: {
               pause: () => pause(record.label_partId),

@@ -38,7 +38,7 @@ const LabelTable: React.FC = () => {
     TABLE.fetch.handleTableFetch(
       API('labelDel', id).then(() => TABLE.action.del(id)),
       `Label deleted..`,
-      `Failed to add Label`
+      `Failed to delete Label`
     )
   }
 

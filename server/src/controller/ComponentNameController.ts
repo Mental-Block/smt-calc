@@ -1,56 +1,63 @@
 import { getRepository } from "typeorm";
-import { Request } from "express";
+import type { Request } from "express";
 
 import { ComponentName } from "@entities";
-
 import { ENTITY, COMPONENTNAME } from "@const";
 
-import { ComponentNameProps } from "@interfaces/component";
-
-type ComponentNameAddReq = Request<{}, {}, Pick<ComponentNameProps, 'name'>>
-type ComponentNameReq = Request<{}, {}, {}, Pick<ComponentNameProps, 'name'>>
-type ComponentNameDelReq = Request<Pick<ComponentNameProps, 'id'>>
+import type { ComponentNameProps } from "@interfaces/component";
 
 export default class ComponentNameController {
   private ComponentNameRepository = getRepository(ComponentName)
 
-  async all(req: ComponentNameReq) {
+  async all(req:  Request<{}, {}, {}, Pick<ComponentNameProps, 'name'>>) {
     let { name } = req.query
 
-    const records = await this.ComponentNameRepository
-    .createQueryBuilder(`${ENTITY.componentname}`)
-    .select([
-    `${ENTITY.componentname}.${COMPONENTNAME.id}`,
-    `${ENTITY.componentname}.${COMPONENTNAME.name}`
-    ])
-    .where(name ? `${ENTITY.componentname}.${COMPONENTNAME.name} ILIKE :${COMPONENTNAME.name}` 
-    : `TRUE`, { name: `%${name}%` })
-    .getMany()
+    try {
+      const records = await this.ComponentNameRepository
+      .createQueryBuilder(`${ENTITY.componentname}`)
+      .select([
+      `${ENTITY.componentname}.${COMPONENTNAME.id}`,
+      `${ENTITY.componentname}.${COMPONENTNAME.name}`
+      ])
+      .where(name ? `${ENTITY.componentname}.${COMPONENTNAME.name} ILIKE :${COMPONENTNAME.name}` 
+      : `TRUE`, { name: `%${name}%` })
+      .getMany()
 
-    return records
+      return records
+    } catch (error: any) {
+      throw new Error(error || 'Failed to get component name records.')
+    }
   }
 
-  async del (req: ComponentNameDelReq) {
+  async del (req: Request<Pick<ComponentNameProps, 'id'>>) {
     const { id } = req.params
 
-    await this.ComponentNameRepository.delete({ id });
+    try {
+      await this.ComponentNameRepository.delete({ id });
 
-    return true
+      return true
+    } catch (error: any) {
+      throw new Error(error || "This Componenent name doesn't exist")
+    }
   }
 
-  async add(req: ComponentNameAddReq) {
-    const reqName = req.body.name
+  async add(req: Request<{}, {}, Pick<ComponentNameProps, 'name'>>) {
+    const { name } = req.body
 
+    try {
       const createdComponentName = this.ComponentNameRepository.create({
-        name: reqName 
+        name 
       })
 
-    const { id, name } = await this.ComponentNameRepository.save(createdComponentName)
+      const option = await this.ComponentNameRepository.save(createdComponentName)
 
-    return {
-      id,
-      text: name,
-      value: name,
+      return {
+        id: option.id,
+        text: option.name,
+        value: option.name,
+      }
+    } catch (error: any) {
+      throw new Error(error || 'Failed to save component name!') 
     }
   }
 }

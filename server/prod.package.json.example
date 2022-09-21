@@ -16,6 +16,7 @@
     "build": "npx tsc -p ."
   },
   "_moduleAliases": {
+    "@business": "dist/src/business"
     "@entities": "dist/src/entities",
     "@interfaces": "dist/src/interfaces",
     "@controller": "dist/src/controller",

@@ -189,7 +189,7 @@ export const usePrivateApi = () => {
         },
       },
     ],
-    userDel: ({ id }) => [
+    userDel: (id) => [
       {
         url: `${API.USER}/${id}`,
         options: {
@@ -334,7 +334,7 @@ export const usePrivateApi = () => {
     ],
     labelAdd: (values) => [
       {
-        url: `${API.COMPONENT}/add`,
+        url: `${API.LABEL}/add`,
         options: {
           headers: {
             Accept: 'application/json',
@@ -349,7 +349,7 @@ export const usePrivateApi = () => {
     ],
     labelDel: (id) => [
       {
-        url: `${API.COMPONENT}/${id}`,
+        url: `${API.LABEL}/${id}`,
         options: {
           headers: {
             Accept: 'application/json',

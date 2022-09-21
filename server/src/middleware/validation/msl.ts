@@ -1,7 +1,7 @@
 import { ERRORS, MSL_LEVEL, MSL_STATUS, REGEX } from "@const";
 import { query, ValidationChain, Location, body } from "express-validator";
 
-import { checkIfValueInObjectCheck } from "./common";
+import { checkIfValueInObject } from "./common";
 
 
 export const mslLevel = (name: string, location: Location = 'body'): ValidationChain => {
@@ -10,8 +10,9 @@ export const mslLevel = (name: string, location: Location = 'body'): ValidationC
       return query(name)
       .optional({checkFalsy: true, nullable: true})
       .escape()
+      .isLength({ max: 2 })
       .exists({checkFalsy: true}).withMessage(ERRORS.empty).bail()
-      .custom((value: string) => checkIfValueInObjectCheck(MSL_LEVEL, value, ERRORS.notMSLLevel))
+      .custom((value: string) => checkIfValueInObject(MSL_LEVEL, value, ERRORS.notMSLLevel))
       .matches(REGEX.numbersLetterWSpace).withMessage(ERRORS.letandNumCheck).bail()
 
     default:
@@ -52,7 +53,7 @@ export const status = (name: string, location: Location = 'body'): ValidationCha
       .escape()
       .toUpperCase()
       .exists({checkFalsy: true}).withMessage(ERRORS.empty).bail()
-      .custom((value: string) => checkIfValueInObjectCheck(MSL_STATUS, value, ERRORS.notAStatus))
+      .custom((value: string) => checkIfValueInObject(MSL_STATUS, value, ERRORS.notAStatus))
       .matches(REGEX.lettersWSpace).withMessage(ERRORS.lettersCheck).bail()
 
     default:
@@ -60,7 +61,7 @@ export const status = (name: string, location: Location = 'body'): ValidationCha
       .escape()
       .toUpperCase()
       .exists({checkFalsy: true}).withMessage(ERRORS.empty).bail()
-      .custom((value: string) => checkIfValueInObjectCheck(MSL_STATUS, value, ERRORS.notAStatus))
+      .custom((value: string) => checkIfValueInObject(MSL_STATUS, value, ERRORS.notAStatus))
       .matches(REGEX.lettersWSpace).withMessage(ERRORS.lettersCheck).bail()
   }
 }
