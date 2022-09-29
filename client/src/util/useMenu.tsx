@@ -16,7 +16,7 @@ const useMenu = () => {
         id: key,
         key: generateId((key + 5000).toString()), // 5000 is just an arb number for antd types
         path: route.path as string,
-        disabled: auth.role === ROLE.admin ? false : true,
+        disabled: route.restricted ? auth.role === ROLE.admin ? false : true : false,
       }
 
       if (route.routes) {
