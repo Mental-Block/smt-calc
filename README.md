@@ -1,6 +1,6 @@
 # SMT CALC
 
-Software designed to improve productivity at the iroqouis factory facility
+MSL componets.
 
 ## Getting Started
 
